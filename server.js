@@ -2,6 +2,7 @@ const Alexa = require('ask-sdk-core');
 const elasticsearch = require('@elastic/elasticsearch');
 const express = require('express');
 const { ExpressAdapter } = require('ask-sdk-express-adapter');
+const persistenceAdapter = require('ask-sdk-s3-persistence-adapter');
 const config = require('/etc/aaconf/config.json');
 
 es = new elasticsearch.Client({ node: config.ES_HOST, log: 'error' });
@@ -47,7 +48,7 @@ const GetInfoIntentHandler = {
             && handlerInput.requestEnvelope.request.intent.name === 'GetInfo';
     },
     handle(handlerInput) {
-        console.info('asked for information.');
+        console.info('asked for information:', handlerInput.request.intent.slots);
         const speechText = 'Getting your data!';
 
         return handlerInput.responseBuilder
@@ -63,8 +64,11 @@ const SystemStatusIntentHandler = {
             && handlerInput.requestEnvelope.request.intent.name === 'SystemStatus';
     },
     handle(handlerInput) {
-        console.info('asked for system status.');
+        console.info('asked for system status:', handlerInput.request.intent.slots);
         const speechText = 'looking up system status!';
+
+        const esstatus = await es.status();
+        console.info('esstatus', esstatus);
 
         return handlerInput.responseBuilder
             .speak(speechText)
@@ -163,6 +167,9 @@ const skill = Alexa.SkillBuilders.custom()
         CancelAndStopIntentHandler,
         SessionEndedRequestHandler)
     .addErrorHandlers(ErrorHandler)
+    // .withPersistenceAdapter(
+    //     new persistenceAdapter.S3PersistenceAdapter({bucketName:'alexa-atlas'})
+    // )
     .create();
 
 
