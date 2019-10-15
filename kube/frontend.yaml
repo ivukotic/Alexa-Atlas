@@ -1,0 +1,81 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: alexa-atlas
+  namespace: aaas
+  labels:
+    k8s-app: alexa-atlas
+spec:
+  type: NodePort
+  ports:
+  - name: http
+    protocol: TCP
+    port: 80
+    targetPort: 80
+  selector:
+    k8s-app: alexa-atlas
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: alexa-atlas
+  namespace: aaas
+  labels:
+    k8s-app: alexa-atlas
+  annotations:
+    kubernetes.io/ingress.class: slate
+    certmanager.k8s.io/cluster-issuer: letsencrypt-prod
+spec:
+  tls:
+  - hosts:
+    - alexa.atlas-ml.org
+    secretName: auto-generated-alexa-atlas
+  rules:
+  - host: alexa.atlas-ml.org
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: alexa-atlas
+          servicePort: 80
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: alexa-atlas  
+  namespace: aaas
+  labels:
+    k8s-app: alexa-atlas
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      k8s-app: alexa-atlas
+  template:
+    metadata:
+      labels:
+        k8s-app: alexa-atlas
+    spec:
+      containers:
+      - name: alexa-atlas
+        image: ivukotic/alexa-atlas:latest
+        ports:
+          - containerPort: 80
+        livenessProbe:
+          httpGet:
+            scheme: HTTP
+            path: /healthz
+            port: 80
+          periodSeconds: 60
+          initialDelaySeconds: 60
+          timeoutSeconds: 10
+        volumeMounts:
+        - name: frontend-conf-volume
+          mountPath: "/etc/ml-front-conf/"
+      volumes:
+      - name: frontend-conf-volume
+        secret:
+          secretName: config
+          items:
+          - key: aaconf
+            path: config.json
