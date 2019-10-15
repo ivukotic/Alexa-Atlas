@@ -1,33 +1,20 @@
-import {
-    ErrorHandler,
-    HandlerInput,
-    RequestHandler,
-    SkillBuilders,
-} from 'ask-sdk-core';
-
-import {
-    Response,
-    SessionEndedRequest,
-} from 'ask-sdk-model';
-
-import {
-    Client
-} from '@elastic/elasticsearch'
-
-import { express } from 'express';
-import { ExpressAdapter } from 'ask-sdk-express-adapter';
+const Alexa = require('ask-sdk-core');
+const elasticsearch = require('@elastic/elasticsearch');
+const express = require('express');
+const { ExpressAdapter } = require('ask-sdk-express-adapter');
 
 import config from '/etc/aaconf/config.json';
-const es = new Client({ node: config.ES_HOST });
+
+es = new elasticsearch.Client({ node: config.ES_HOST, log: 'error' });
 console.info(es.ping());
 
 const app = express();
 
-const LaunchRequestHandler: RequestHandler = {
-    canHandle(handlerInput: HandlerInput): boolean {
+const LaunchRequestHandler = {
+    canHandle(handlerInput) {
         return handlerInput.requestEnvelope.request.type === 'LaunchRequest';
     },
-    handle(handlerInput: HandlerInput): Response {
+    handle(handlerInput) {
         const speechText = 'Welcome to the Alexa Skills Kit, you can say hello!';
 
         return handlerInput.responseBuilder
@@ -35,30 +22,30 @@ const LaunchRequestHandler: RequestHandler = {
             .reprompt(speechText)
             .withSimpleCard('Hello World', speechText)
             .getResponse();
-    },
+    }
 };
 
-const HelloWorldIntentHandler: RequestHandler = {
-    canHandle(handlerInput: HandlerInput): boolean {
+const HelloWorldIntentHandler = {
+    canHandle(handlerInput) {
         return handlerInput.requestEnvelope.request.type === 'IntentRequest'
             && handlerInput.requestEnvelope.request.intent.name === 'HelloWorldIntent';
     },
-    handle(handlerInput: HandlerInput): Response {
+    handle(handlerInput) {
         const speechText = 'Hello World!';
 
         return handlerInput.responseBuilder
             .speak(speechText)
             .withSimpleCard('Hello World', speechText)
             .getResponse();
-    },
+    }
 };
 
-const HelpIntentHandler: RequestHandler = {
-    canHandle(handlerInput: HandlerInput): boolean {
+const HelpIntentHandler = {
+    canHandle(handlerInput) {
         return handlerInput.requestEnvelope.request.type === 'IntentRequest'
             && handlerInput.requestEnvelope.request.intent.name === 'AMAZON.HelpIntent';
     },
-    handle(handlerInput: HandlerInput): Response {
+    handle(handlerInput) {
         const speechText = 'You can say hello to me!';
 
         return handlerInput.responseBuilder
@@ -66,41 +53,40 @@ const HelpIntentHandler: RequestHandler = {
             .reprompt(speechText)
             .withSimpleCard('Hello World', speechText)
             .getResponse();
-    },
+    }
 };
 
-const CancelAndStopIntentHandler: RequestHandler = {
-    canHandle(handlerInput: HandlerInput): boolean {
+const CancelAndStopIntentHandler = {
+    canHandle(handlerInput) {
         return handlerInput.requestEnvelope.request.type === 'IntentRequest'
             && (handlerInput.requestEnvelope.request.intent.name === 'AMAZON.CancelIntent'
                 || handlerInput.requestEnvelope.request.intent.name === 'AMAZON.StopIntent');
     },
-    handle(handlerInput: HandlerInput): Response {
+    handle(handlerInput) {
         const speechText = 'Goodbye!';
 
         return handlerInput.responseBuilder
             .speak(speechText)
             .withSimpleCard('Hello World', speechText)
             .getResponse();
-    },
+    }
 };
 
-const SessionEndedRequestHandler: RequestHandler = {
-    canHandle(handlerInput: HandlerInput): boolean {
+const SessionEndedRequestHandler = {
+    canHandle(handlerInput) {
         return handlerInput.requestEnvelope.request.type === 'SessionEndedRequest';
     },
-    handle(handlerInput: HandlerInput): Response {
-        console.log(`Session ended with reason: ${(handlerInput.requestEnvelope.request as SessionEndedRequest).reason}`);
-
+    handle(handlerInput) {
+        //any cleanup logic goes here
         return handlerInput.responseBuilder.getResponse();
-    },
+    }
 };
 
-const ErrorHandler: ErrorHandler = {
-    canHandle(handlerInput: HandlerInput, error: Error): boolean {
+const ErrorHandler = {
+    canHandle() {
         return true;
     },
-    handle(handlerInput: HandlerInput, error: Error): Response {
+    handle(handlerInput, error) {
         console.log(`Error handled: ${error.message}`);
 
         return handlerInput.responseBuilder
@@ -111,10 +97,10 @@ const ErrorHandler: ErrorHandler = {
 };
 
 // let skill;
-// exports.handler = async (event, context) => {
+// exports.handler = async function (event, context) {
 //     console.log(`REQUEST++++${JSON.stringify(event)}`);
 //     if (!skill) {
-//         skill = SkillBuilders.custom()
+//         skill = Alexa.SkillBuilders.custom()
 //             .addRequestHandlers(
 //                 LaunchRequestHandler,
 //                 HelloWorldIntentHandler,
@@ -125,24 +111,22 @@ const ErrorHandler: ErrorHandler = {
 //             .addErrorHandlers(ErrorHandler)
 //             .create();
 //     }
-
 //     const response = await skill.invoke(event, context);
 //     console.log(`RESPONSE++++${JSON.stringify(response)}`);
-
 //     return response;
 // };
 
 
-const skill = SkillBuilders.custom()
+const skill = Alexa.SkillBuilders.custom()
     .addRequestHandlers(
         LaunchRequestHandler,
         HelloWorldIntentHandler,
         HelpIntentHandler,
         CancelAndStopIntentHandler,
-        SessionEndedRequestHandler,
-    )
+        SessionEndedRequestHandler)
     .addErrorHandlers(ErrorHandler)
     .create();
+
 
 const adapter = new ExpressAdapter(skill, true, true);
 
