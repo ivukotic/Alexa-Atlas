@@ -75,7 +75,7 @@ spec:
       volumes:
       - name: frontend-conf-volume
         secret:
-          secretName: config
+          secretName: aaconfig
           items:
           - key: aaconf
             path: config.json
