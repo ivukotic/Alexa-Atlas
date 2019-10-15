@@ -71,7 +71,7 @@ spec:
           timeoutSeconds: 10
         volumeMounts:
         - name: frontend-conf-volume
-          mountPath: "/etc/ml-front-conf/"
+          mountPath: "/etc/aaconf/"
       volumes:
       - name: frontend-conf-volume
         secret:

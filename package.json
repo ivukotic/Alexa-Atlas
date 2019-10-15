@@ -2,9 +2,10 @@
   "name": "alexa-atlas",
   "version": "1.0.0",
   "description": "Alexa skill for ATLAS physicists computing needs",
-  "main": "index.js",
+  "main": "server.ts",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "prestart": "npm install",
+    "start": "node server.js"
   },
   "repository": {
     "type": "git",

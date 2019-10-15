@@ -10,8 +10,16 @@ import {
     SessionEndedRequest,
 } from 'ask-sdk-model';
 
-import express from 'express';
+import {
+    Client
+} from '@elastic/elasticsearch'
+
+import { express } from 'express';
 import { ExpressAdapter } from 'ask-sdk-express-adapter';
+
+import config from '/etc/aaconf/config.json';
+const es = new Client({ node: config.ES_HOST });
+console.info(es.ping());
 
 const app = express();
 
