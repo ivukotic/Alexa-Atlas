@@ -147,4 +147,9 @@ const skill = SkillBuilders.custom()
 const adapter = new ExpressAdapter(skill, true, true);
 
 app.post('/', adapter.getRequestHandlers());
+
+app.get('/healthz', function (_req, res) {
+    res.status(200).send('OK');
+});
+
 app.listen(80);
