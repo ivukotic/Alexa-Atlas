@@ -48,7 +48,7 @@ const GetInfoIntentHandler = {
             && handlerInput.requestEnvelope.request.intent.name === 'GetInfo';
     },
     handle(handlerInput) {
-        console.info('asked for information:', handlerInput.request.intent.slots);
+        console.info('asked for information:', handlerInput.attributesManager.getRequestAttributes());
         const speechText = 'Getting your data!';
 
         return handlerInput.responseBuilder
@@ -64,9 +64,16 @@ const SystemStatusIntentHandler = {
             && handlerInput.requestEnvelope.request.intent.name === 'SystemStatus';
     },
     handle(handlerInput) {
-        console.info('asked for system status:', handlerInput.request.intent.slots);
+        console.info('asked for system status:', handlerInput.attributesManager.getRequestAttributes());
         const speechText = 'looking up system status!';
 
+        try {
+            await es.cluster.health(function (err, resp, status) {
+                console.log('ES status:', resp);
+            });
+        } catch (err) {
+            console.error('ES Error: ', err);
+        }
         // const esstatus = await es.status();
         // console.info('esstatus', esstatus);
 
@@ -135,26 +142,6 @@ const ErrorHandler = {
             .getResponse();
     },
 };
-
-// let skill;
-// exports.handler = async function (event, context) {
-//     console.log(`REQUEST++++${JSON.stringify(event)}`);
-//     if (!skill) {
-//         skill = Alexa.SkillBuilders.custom()
-//             .addRequestHandlers(
-//                 LaunchRequestHandler,
-//                 HelloWorldIntentHandler,
-//                 HelpIntentHandler,
-//                 CancelAndStopIntentHandler,
-//                 SessionEndedRequestHandler,
-//             )
-//             .addErrorHandlers(ErrorHandler)
-//             .create();
-//     }
-//     const response = await skill.invoke(event, context);
-//     console.log(`RESPONSE++++${JSON.stringify(response)}`);
-//     return response;
-// };
 
 
 const skill = Alexa.SkillBuilders.custom()
