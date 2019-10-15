@@ -57,6 +57,22 @@ const GetInfoIntentHandler = {
     }
 };
 
+const SystemStatusIntentHandler = {
+    canHandle(handlerInput) {
+        return handlerInput.requestEnvelope.request.type === 'IntentRequest'
+            && handlerInput.requestEnvelope.request.intent.name === 'SystemStatus';
+    },
+    handle(handlerInput) {
+        console.info('asked for system status.');
+        const speechText = 'looking up system status!';
+
+        return handlerInput.responseBuilder
+            .speak(speechText)
+            .withSimpleCard('ATLAS computing', speechText)
+            .getResponse();
+    }
+};
+
 const HelpIntentHandler = {
     canHandle(handlerInput) {
         return handlerInput.requestEnvelope.request.type === 'IntentRequest'
@@ -140,7 +156,9 @@ const ErrorHandler = {
 const skill = Alexa.SkillBuilders.custom()
     .addRequestHandlers(
         LaunchRequestHandler,
-        HelloWorldIntentHandler,
+        ConfigureIntentHandler,
+        GetInfoIntentHandler,
+        SystemStatusIntentHandler,
         HelpIntentHandler,
         CancelAndStopIntentHandler,
         SessionEndedRequestHandler)
