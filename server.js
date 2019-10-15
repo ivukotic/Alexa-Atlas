@@ -2,8 +2,7 @@ const Alexa = require('ask-sdk-core');
 const elasticsearch = require('@elastic/elasticsearch');
 const express = require('express');
 const { ExpressAdapter } = require('ask-sdk-express-adapter');
-
-import config from '/etc/aaconf/config.json';
+const config = require('/etc/aaconf/config.json');
 
 es = new elasticsearch.Client({ node: config.ES_HOST, log: 'error' });
 console.info(es.ping());
