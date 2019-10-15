@@ -4,9 +4,9 @@ const express = require('express');
 const { ExpressAdapter } = require('ask-sdk-express-adapter');
 const persistenceAdapter = require('ask-sdk-s3-persistence-adapter');
 const config = require('/etc/aaconf/config.json');
+// const config = require('./kube/secrets/config.json');
 
 es = new elasticsearch.Client({ node: config.ES_HOST, log: 'error' });
-console.info(es.ping());
 
 const app = express();
 
@@ -182,3 +182,16 @@ app.get('/healthz', function (_req, res) {
 });
 
 app.listen(80);
+
+
+async function main() {
+    try {
+        await es.ping(function (err, resp, status) {
+            console.log('ES ping:', resp.statusCode);
+        });
+    } catch (err) {
+        console.error('Error: ', err);
+    }
+}
+
+main();
