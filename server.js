@@ -14,27 +14,45 @@ const LaunchRequestHandler = {
         return handlerInput.requestEnvelope.request.type === 'LaunchRequest';
     },
     handle(handlerInput) {
-        const speechText = 'Welcome to the Alexa Skills Kit, you can say hello!';
+        console.info('application launched.');
+        const speechText = 'Welcome to the ATLAS computing info system! To learn all options say "Help". ';
 
         return handlerInput.responseBuilder
             .speak(speechText)
             .reprompt(speechText)
-            .withSimpleCard('Hello World', speechText)
+            .withSimpleCard('ATLAS computing', speechText)
             .getResponse();
     }
 };
 
-const HelloWorldIntentHandler = {
+const ConfigureIntentHandler = {
     canHandle(handlerInput) {
         return handlerInput.requestEnvelope.request.type === 'IntentRequest'
-            && handlerInput.requestEnvelope.request.intent.name === 'HelloWorldIntent';
+            && handlerInput.requestEnvelope.request.intent.name === 'Configure';
     },
     handle(handlerInput) {
-        const speechText = 'Hello World!';
+        console.info('asked for configuration.');
+        const speechText = 'Configuring!';
 
         return handlerInput.responseBuilder
             .speak(speechText)
-            .withSimpleCard('Hello World', speechText)
+            .withSimpleCard('ATLAS computing', speechText)
+            .getResponse();
+    }
+};
+
+const GetInfoIntentHandler = {
+    canHandle(handlerInput) {
+        return handlerInput.requestEnvelope.request.type === 'IntentRequest'
+            && handlerInput.requestEnvelope.request.intent.name === 'GetInfo';
+    },
+    handle(handlerInput) {
+        console.info('asked for information.');
+        const speechText = 'Getting your data!';
+
+        return handlerInput.responseBuilder
+            .speak(speechText)
+            .withSimpleCard('ATLAS computing', speechText)
             .getResponse();
     }
 };
@@ -45,12 +63,13 @@ const HelpIntentHandler = {
             && handlerInput.requestEnvelope.request.intent.name === 'AMAZON.HelpIntent';
     },
     handle(handlerInput) {
-        const speechText = 'You can say hello to me!';
+        console.info('asked for help.');
+        const speechText = 'You can say: configure, jobs, tasks, transfers or data.';
 
         return handlerInput.responseBuilder
             .speak(speechText)
             .reprompt(speechText)
-            .withSimpleCard('Hello World', speechText)
+            .withSimpleCard('ATLAS computing', speechText)
             .getResponse();
     }
 };
@@ -62,11 +81,12 @@ const CancelAndStopIntentHandler = {
                 || handlerInput.requestEnvelope.request.intent.name === 'AMAZON.StopIntent');
     },
     handle(handlerInput) {
+        console.info('asked for stop.');
         const speechText = 'Goodbye!';
 
         return handlerInput.responseBuilder
             .speak(speechText)
-            .withSimpleCard('Hello World', speechText)
+            .withSimpleCard('ATLAS computing', speechText)
             .getResponse();
     }
 };
@@ -76,6 +96,7 @@ const SessionEndedRequestHandler = {
         return handlerInput.requestEnvelope.request.type === 'SessionEndedRequest';
     },
     handle(handlerInput) {
+        console.info('session ended request.');
         //any cleanup logic goes here
         return handlerInput.responseBuilder.getResponse();
     }
