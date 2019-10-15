@@ -67,8 +67,8 @@ const SystemStatusIntentHandler = {
         console.info('asked for system status:', handlerInput.request.intent.slots);
         const speechText = 'looking up system status!';
 
-        const esstatus = await es.status();
-        console.info('esstatus', esstatus);
+        // const esstatus = await es.status();
+        // console.info('esstatus', esstatus);
 
         return handlerInput.responseBuilder
             .speak(speechText)
