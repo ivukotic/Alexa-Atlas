@@ -66,10 +66,20 @@ const SystemStatusIntentHandler = {
     async handle(handlerInput) {
         console.info('asked for system status:', handlerInput.attributesManager.getRequestAttributes());
         const speechText = 'looking up system status!';
-
+        console.info("slots:", handlerInput.requestEnvelope.request.intent.slots)
         try {
             await es.cluster.health(function (err, resp, status) {
-                console.log('ES status:', resp);
+                const es_status = resp.body.status;
+                const es_unassigned = resp.body.unassigned_shard;
+                const speechText = 'Elastic status is ' + es_status + '.';
+                if (es_status !== 'green') {
+                    speechText += ' There are ' + es_unassigned + ' unassigned shards.';
+                }
+                console.info(speechText);
+                return handlerInput.responseBuilder
+                    .speak(speechText)
+                    .withSimpleCard('ATLAS computing', speechText)
+                    .getResponse();
             });
         } catch (err) {
             console.error('ES Error: ', err);
