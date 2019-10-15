@@ -63,7 +63,7 @@ const SystemStatusIntentHandler = {
         return handlerInput.requestEnvelope.request.type === 'IntentRequest'
             && handlerInput.requestEnvelope.request.intent.name === 'SystemStatus';
     },
-    handle(handlerInput) {
+    async handle(handlerInput) {
         console.info('asked for system status:', handlerInput.attributesManager.getRequestAttributes());
         const speechText = 'looking up system status!';
 
@@ -74,8 +74,6 @@ const SystemStatusIntentHandler = {
         } catch (err) {
             console.error('ES Error: ', err);
         }
-        // const esstatus = await es.status();
-        // console.info('esstatus', esstatus);
 
         return handlerInput.responseBuilder
             .speak(speechText)
