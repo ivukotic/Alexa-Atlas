@@ -83,7 +83,7 @@ const JobsIntentHandler = {
 
         let speechText = 'Your jobs are in following states: ';
         for (i in buckets) {
-            speechText += 'in ' + str(buckets[i].key) + ', ' + str(buckets[i].doc_count) +', ';
+            speechText += 'in ' + buckets[i].key + ', ' + buckets[i].doc_count.toString() + ', ';
         }
 
         console.info(speechText);
@@ -159,7 +159,7 @@ const SystemStatusIntentHandler = {
             const es_unassigned = es_resp.body.unassigned_shard;
             let speechText = 'Elastic status is ' + es_status + '.';
             if (es_status !== 'green') {
-                speechText += ' There are ' + str(es_unassigned) + ' unassigned shards.';
+                speechText += ' There are ' + es_unassigned.toString() + ' unassigned shards.';
             }
             console.info(speechText);
             return handlerInput.responseBuilder
