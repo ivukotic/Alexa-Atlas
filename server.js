@@ -52,12 +52,10 @@ const JobsIntentHandler = {
         const slots = handlerInput.requestEnvelope.request.intent.slots;
         console.info("slots:", slots);
 
-        const start_in_utc = new Date().getTime() - 7 * 24 * 86400 * 1000;
+        let start_in_utc = new Date().getTime() - 7 * 24 * 86400 * 1000;
         if (slots.interval) {
             console.info('interval', slots.interval.value);
         }
-
-        const speechText = 'Getting your jobs data!';
 
         const es_resp = await es.search({
             index: 'jobs',
@@ -80,10 +78,13 @@ const JobsIntentHandler = {
                 }
             }
         });
-        console.info('es response:', es_resp.body)
-        // const es_status = es_resp.body.status;
-        // const es_unassigned = es_resp.body.unassigned_shard;
-        // let speechText = 'Elastic status is ' + es_status + '.';
+        console.info('es response:', es_resp.body.aggregations.all_statuses)
+        const buckets = es_resp.body.aggregations.all_statuses.buckets;
+
+        let speechText = 'Your jobs are in following states: ';
+        for (i in buckets) {
+            speechText += 'in ' + str(buckets[i].key) + ', ' + str(buckets[i].doc_count) +', ';
+        }
 
         console.info(speechText);
         return handlerInput.responseBuilder
