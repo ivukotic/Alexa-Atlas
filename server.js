@@ -3,8 +3,8 @@ const elasticsearch = require('@elastic/elasticsearch');
 const express = require('express');
 const { ExpressAdapter } = require('ask-sdk-express-adapter');
 const persistenceAdapter = require('ask-sdk-s3-persistence-adapter');
-// const config = require('/etc/aaconf/config.json');
-const config = require('./kube/secrets/config.json');
+const config = require('/etc/aaconf/config.json');
+// const config = require('./kube/secrets/config.json');
 
 es = new elasticsearch.Client({ node: config.ES_HOST, log: 'error' });
 
