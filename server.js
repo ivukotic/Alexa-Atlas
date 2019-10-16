@@ -236,8 +236,7 @@ const SystemStatusIntentHandler = {
                 const ref_end = sub_end - tbin * 3600 * 1000;
                 console.info('reference interval:', ref_start, ' till ', ref_end);
 
-                types_query = {
-                    size: 0,
+                let types_query = {
                     query: {
                         bool: {
                             filter: {
@@ -247,11 +246,11 @@ const SystemStatusIntentHandler = {
                     }
                 }
 
-                const es_res = es.search(index = ind, body = types_query, request_timeout = 120)
-                ps_indices[ind][1] = es_res['hits']['total']['value']
+                const es_res = es.count(index = ind, body = types_query)
+                console.info(es_res);
+                ps_indices[ind][1] = es_res['count']
 
-                types_query = {
-                    size: 0,
+                let types_query = {
                     query: {
                         bool: {
                             filter: {
@@ -261,8 +260,8 @@ const SystemStatusIntentHandler = {
                     }
                 }
 
-                const es_res1 = es.search(index = ind, body = types_query, request_timeout = 120)
-                ps_indices[ind][2] = es_res1['hits']['total']['value']
+                const es_res1 = es.count(index = ind, body = types_query)
+                ps_indices[ind][2] = es_res1['hits']
             }
 
             console.info(ps_indices);
