@@ -3,8 +3,8 @@ const elasticsearch = require('@elastic/elasticsearch');
 const express = require('express');
 const { ExpressAdapter } = require('ask-sdk-express-adapter');
 const persistenceAdapter = require('ask-sdk-s3-persistence-adapter');
-const config = require('/etc/aaconf/config.json');
-// const config = require('./kube/secrets/config.json');
+// const config = require('/etc/aaconf/config.json');
+const config = require('./kube/secrets/config.json');
 
 es = new elasticsearch.Client({ node: config.ES_HOST, log: 'error' });
 
@@ -42,13 +42,45 @@ const ConfigureIntentHandler = {
     }
 };
 
-const GetInfoIntentHandler = {
+const JobsIntentHandler = {
     canHandle(handlerInput) {
         return handlerInput.requestEnvelope.request.type === 'IntentRequest'
-            && handlerInput.requestEnvelope.request.intent.name === 'GetInfo';
+            && handlerInput.requestEnvelope.request.intent.name === 'Jobs';
     },
     handle(handlerInput) {
-        console.info('asked for information:', handlerInput.attributesManager.getRequestAttributes());
+        console.info('asked for jobs information');
+        const speechText = 'Getting your jobs data!';
+
+        return handlerInput.responseBuilder
+            .speak(speechText)
+            .withSimpleCard('ATLAS computing', speechText)
+            .getResponse();
+    }
+};
+
+const TasksIntentHandler = {
+    canHandle(handlerInput) {
+        return handlerInput.requestEnvelope.request.type === 'IntentRequest'
+            && handlerInput.requestEnvelope.request.intent.name === 'Tasks';
+    },
+    handle(handlerInput) {
+        console.info('asked for tasks information');
+        const speechText = 'Getting your tasks data!';
+
+        return handlerInput.responseBuilder
+            .speak(speechText)
+            .withSimpleCard('ATLAS computing', speechText)
+            .getResponse();
+    }
+};
+
+const DataIntentHandler = {
+    canHandle(handlerInput) {
+        return handlerInput.requestEnvelope.request.type === 'IntentRequest'
+            && handlerInput.requestEnvelope.request.intent.name === 'Data';
+    },
+    handle(handlerInput) {
+        console.info('asked for data information');
         const speechText = 'Getting your data!';
 
         return handlerInput.responseBuilder
@@ -58,37 +90,78 @@ const GetInfoIntentHandler = {
     }
 };
 
+const TransfersIntentHandler = {
+    canHandle(handlerInput) {
+        return handlerInput.requestEnvelope.request.type === 'IntentRequest'
+            && handlerInput.requestEnvelope.request.intent.name === 'Transfers';
+    },
+    handle(handlerInput) {
+        console.info('asked for transfers information');
+        const speechText = 'Getting your transfers data!';
+
+        return handlerInput.responseBuilder
+            .speak(speechText)
+            .withSimpleCard('ATLAS computing', speechText)
+            .getResponse();
+    }
+};
+
+
 const SystemStatusIntentHandler = {
     canHandle(handlerInput) {
         return handlerInput.requestEnvelope.request.type === 'IntentRequest'
             && handlerInput.requestEnvelope.request.intent.name === 'SystemStatus';
     },
     async handle(handlerInput) {
-        console.info('asked for system status:', handlerInput.attributesManager.getRequestAttributes());
+        console.info('asked for system status.');
         const speechText = 'looking up system status!';
         console.info("slots:", handlerInput.requestEnvelope.request.intent.slots)
-        try {
-            await es.cluster.health(function (err, resp, status) {
-                const es_status = resp.body.status;
-                const es_unassigned = resp.body.unassigned_shard;
-                const speechText = 'Elastic status is ' + es_status + '.';
-                if (es_status !== 'green') {
-                    speechText += ' There are ' + es_unassigned + ' unassigned shards.';
-                }
-                console.info(speechText);
+        const sistem = handlerInput.requestEnvelope.request.intent.slots.ADCsystem.value;
+        if (sistem === 'elastic') {
+            try {
+                await es.cluster.health(function (err, resp, status) {
+                    const es_status = resp.body.status;
+                    const es_unassigned = resp.body.unassigned_shard;
+                    const speechText = 'Elastic status is ' + es_status + '.';
+                    if (es_status !== 'green') {
+                        speechText += ' There are ' + es_unassigned + ' unassigned shards.';
+                    }
+                    console.info(speechText);
+                    return handlerInput.responseBuilder
+                        .speak(speechText)
+                        .withSimpleCard('ATLAS computing', speechText)
+                        .getResponse();
+                });
+            } catch (err) {
+                console.error('ES Error: ', err);
+                speechText = 'could not get elastic search status.';
                 return handlerInput.responseBuilder
                     .speak(speechText)
                     .withSimpleCard('ATLAS computing', speechText)
                     .getResponse();
-            });
-        } catch (err) {
-            console.error('ES Error: ', err);
+            }
         }
-
-        return handlerInput.responseBuilder
-            .speak(speechText)
-            .withSimpleCard('ATLAS computing', speechText)
-            .getResponse();
+        if (sistem === 'fts') {
+            speechText = 'fts status lookup not yet implemented.';
+            return handlerInput.responseBuilder
+                .speak(speechText)
+                .withSimpleCard('ATLAS computing', speechText)
+                .getResponse();
+        }
+        if (sistem === 'perfsonar') {
+            speechText = 'perfsonar status lookup not yet implemented.';
+            return handlerInput.responseBuilder
+                .speak(speechText)
+                .withSimpleCard('ATLAS computing', speechText)
+                .getResponse();
+        }
+        if (sistem === 'frontier') {
+            speechText = 'frontier status lookup not yet implemented.';
+            return handlerInput.responseBuilder
+                .speak(speechText)
+                .withSimpleCard('ATLAS computing', speechText)
+                .getResponse();
+        }
     }
 };
 
@@ -156,7 +229,10 @@ const skill = Alexa.SkillBuilders.custom()
     .addRequestHandlers(
         LaunchRequestHandler,
         ConfigureIntentHandler,
-        GetInfoIntentHandler,
+        JobsIntentHandler,
+        TasksIntentHandler,
+        TransfersIntentHandler,
+        DataIntentHandler,
         SystemStatusIntentHandler,
         HelpIntentHandler,
         CancelAndStopIntentHandler,
