@@ -217,6 +217,56 @@ const SystemStatusIntentHandler = {
         };
 
         if (sistem === 'perfsonar') {
+            const ps_indices = {
+                'ps_meta': [24, 0, 0],
+                'ps_owd': [1, 0, 0],
+                'ps_packet_loss': [1, 0, 0],
+                'ps_retransmits': [1, 0, 0],
+                'ps_status': [1, 0, 0],
+                'ps_throughput': [1, 0, 0],
+                'ps_trace': [1, 0, 0]
+            }
+            const sub_end = new Date().getTime() - 9 * 86400 * 1000;
+
+            for (ind in ps_indices) {
+                console.info("Checking: ", ind);
+                const tbin = ps_indices[ind][0];
+
+                const ref_start = sub_end - tbin * 3 * 3600 * 1000);
+                const ref_end = sub_end - tbin * 3600 * 1000;
+                console.info('reference interval:', ref_start, ' till ', ref_end);
+
+                types_query = {
+                    size: 0,
+                    query: {
+                        bool: {
+                            filter: {
+                                range: { timestamp: { gt: ref_start, lte: ref_end } }
+                            }
+                        }
+                    }
+                }
+
+                const es_res = es.search(index = ind, body = types_query, request_timeout = 120)
+                ps_indices[ind][1] = es_res['hits']['total']['value']
+
+                types_query = {
+                    size: 0,
+                    query: {
+                        bool: {
+                            filter: {
+                                range: { timestamp: { gt: ref_end, lte: sub_end } }
+                            }
+                        }
+                    }
+                }
+
+                const es_res1 = es.search(index = ind, body = types_query, request_timeout = 120)
+                ps_indices[ind][2] = es_res1['hits']['total']['value']
+            }
+            
+            console.info(ps_indices);
+
             let speechText = 'perfsonar status lookup not yet implemented.';
             console.info(speechText);
             return handlerInput.responseBuilder
@@ -224,6 +274,7 @@ const SystemStatusIntentHandler = {
                 .withSimpleCard('ATLAS computing', speechText)
                 .getResponse();
         }
+
         if (sistem === 'frontier') {
             let speechText = 'frontier status lookup not yet implemented.';
             console.info(speechText);
