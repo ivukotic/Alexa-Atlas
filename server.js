@@ -250,7 +250,7 @@ const SystemStatusIntentHandler = {
                 console.info(es_res);
                 ps_indices[ind][1] = es_res['count']
 
-                let types_query = {
+                types_query = {
                     query: {
                         bool: {
                             filter: {
