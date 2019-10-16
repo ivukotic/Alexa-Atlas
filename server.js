@@ -114,14 +114,13 @@ const SystemStatusIntentHandler = {
     },
     async handle(handlerInput) {
         console.info('asked for system status.');
-        const speechText = 'looking up system status!';
         console.info("slots:", handlerInput.requestEnvelope.request.intent.slots)
         const sistem = handlerInput.requestEnvelope.request.intent.slots.ADCsystem.value;
         if (sistem === 'elastic') {
             const es_resp = await es.cluster.health()
             console.info('es response:', es_resp.body)
-            const es_status = resp.body.status;
-            const es_unassigned = resp.body.unassigned_shard;
+            const es_status = es_resp.body.status;
+            const es_unassigned = es_resp.body.unassigned_shard;
             let speechText = 'Elastic status is ' + es_status + '.';
             if (es_status !== 'green') {
                 speechText += ' There are ' + str(es_unassigned) + ' unassigned shards.';
@@ -158,12 +157,13 @@ const SystemStatusIntentHandler = {
         // }
 
         if (sistem === 'fts') {
-            speechText = 'fts status lookup not yet implemented.';
+            const speechText = 'fts status lookup not yet implemented.';
             return handlerInput.responseBuilder
                 .speak(speechText)
                 .withSimpleCard('ATLAS computing', speechText)
                 .getResponse();
-        }
+        };
+
         if (sistem === 'perfsonar') {
             speechText = 'perfsonar status lookup not yet implemented.';
             return handlerInput.responseBuilder
