@@ -102,7 +102,7 @@ const TasksIntentHandler = {
         return handlerInput.requestEnvelope.request.type === 'IntentRequest'
             && handlerInput.requestEnvelope.request.intent.name === 'Tasks';
     },
-    handle(handlerInput) {
+    async handle(handlerInput) {
         const slots = handlerInput.requestEnvelope.request.intent.slots;
         console.info('asked for tasks information. slots:', slots);
 
@@ -264,7 +264,7 @@ const SystemStatusIntentHandler = {
                 const es_res1 = es.search(index = ind, body = types_query, request_timeout = 120)
                 ps_indices[ind][2] = es_res1['hits']['total']['value']
             }
-            
+
             console.info(ps_indices);
 
             let speechText = 'perfsonar status lookup not yet implemented.';
