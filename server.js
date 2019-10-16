@@ -47,10 +47,38 @@ const JobsIntentHandler = {
         return handlerInput.requestEnvelope.request.type === 'IntentRequest'
             && handlerInput.requestEnvelope.request.intent.name === 'Jobs';
     },
-    handle(handlerInput) {
+    async handle(handlerInput) {
         console.info('asked for jobs information');
+        console.info("slots:", handlerInput.requestEnvelope.request.intent.slots)
         const speechText = 'Getting your jobs data!';
 
+        const es_resp = await es.cluster.search({
+            index: 'jobs',
+            body: {
+                size: 0,
+                query: {
+                    bool: {
+                        must: [
+                            // { match: { jobstatus: "cancelled" } },
+                            { range: { modificationtime: { gte: 100000000 } } }
+                        ],
+                    }
+                },
+                aggs: {
+                    all_statuses: {
+                        terms: {
+                            field: "jobstatus"
+                        }
+                    }
+                }
+            }
+        });
+        console.info('es response:', es_resp.body)
+        // const es_status = es_resp.body.status;
+        // const es_unassigned = es_resp.body.unassigned_shard;
+        // let speechText = 'Elastic status is ' + es_status + '.';
+
+        console.info(speechText);
         return handlerInput.responseBuilder
             .speak(speechText)
             .withSimpleCard('ATLAS computing', speechText)
@@ -131,33 +159,10 @@ const SystemStatusIntentHandler = {
                 .withSimpleCard('ATLAS computing', speechText)
                 .getResponse();
         };
-        //     try {
-        //         await es.cluster.health(function (err, resp, status) {
-        //             console.info('es response:', resp.body)
-        //             const es_status = resp.body.status;
-        //             const es_unassigned = resp.body.unassigned_shard;
-        //             let speechText = 'Elastic status is ' + es_status + '.';
-        //             if (es_status !== 'green') {
-        //                 speechText += ' There are ' + str(es_unassigned) + ' unassigned shards.';
-        //             }
-        //             console.info(speechText);
-        //             return handlerInput.responseBuilder
-        //                 .speak(speechText)
-        //                 .withSimpleCard('ATLAS computing', speechText)
-        //                 .getResponse();
-        //         });
-        //     } catch (err) {
-        //         console.error('ES Error: ', err);
-        //         speechText = 'could not get elastic search status.';
-        //         return handlerInput.responseBuilder
-        //             .speak(speechText)
-        //             .withSimpleCard('ATLAS computing', speechText)
-        //             .getResponse();
-        //     }
-        // }
 
         if (sistem === 'fts') {
-            const speechText = 'fts status lookup not yet implemented.';
+            let speechText = 'fts status lookup not yet implemented.';
+            console.info(speechText);
             return handlerInput.responseBuilder
                 .speak(speechText)
                 .withSimpleCard('ATLAS computing', speechText)
@@ -165,14 +170,16 @@ const SystemStatusIntentHandler = {
         };
 
         if (sistem === 'perfsonar') {
-            speechText = 'perfsonar status lookup not yet implemented.';
+            let speechText = 'perfsonar status lookup not yet implemented.';
+            console.info(speechText);
             return handlerInput.responseBuilder
                 .speak(speechText)
                 .withSimpleCard('ATLAS computing', speechText)
                 .getResponse();
         }
         if (sistem === 'frontier') {
-            speechText = 'frontier status lookup not yet implemented.';
+            let speechText = 'frontier status lookup not yet implemented.';
+            console.info(speechText);
             return handlerInput.responseBuilder
                 .speak(speechText)
                 .withSimpleCard('ATLAS computing', speechText)
@@ -188,7 +195,7 @@ const HelpIntentHandler = {
     },
     handle(handlerInput) {
         console.info('asked for help.');
-        const speechText = 'You can say: configure, jobs, tasks, transfers or data.';
+        const speechText = 'You can say: configure, get system status, my jobs in last week, tasks or transfers, or data.';
 
         return handlerInput.responseBuilder
             .speak(speechText)
