@@ -49,10 +49,17 @@ const JobsIntentHandler = {
     },
     async handle(handlerInput) {
         console.info('asked for jobs information');
-        console.info("slots:", handlerInput.requestEnvelope.request.intent.slots)
+        const slots = handlerInput.requestEnvelope.request.intent.slots;
+        console.info("slots:", slots);
+
+        const start_in_utc = new Date().getTime() - 7 * 24 * 86400 * 1000;
+        if (slots.interval) {
+            console.info('interval', slots.interval.value);
+        }
+
         const speechText = 'Getting your jobs data!';
 
-        const es_resp = await es.cluster.search({
+        const es_resp = await es.search({
             index: 'jobs',
             body: {
                 size: 0,
@@ -60,7 +67,7 @@ const JobsIntentHandler = {
                     bool: {
                         must: [
                             // { match: { jobstatus: "cancelled" } },
-                            { range: { modificationtime: { gte: 100000000 } } }
+                            { range: { modificationtime: { gte: start_in_utc } } }
                         ],
                     }
                 },
@@ -142,7 +149,7 @@ const SystemStatusIntentHandler = {
     },
     async handle(handlerInput) {
         console.info('asked for system status.');
-        console.info("slots:", handlerInput.requestEnvelope.request.intent.slots)
+        console.info('slots:', handlerInput.requestEnvelope.request.intent.slots)
         const sistem = handlerInput.requestEnvelope.request.intent.slots.ADCsystem.value;
         if (sistem === 'elastic') {
             const es_resp = await es.cluster.health()
