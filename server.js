@@ -3,6 +3,8 @@ const elasticsearch = require('@elastic/elasticsearch');
 const express = require('express');
 const { ExpressAdapter } = require('ask-sdk-express-adapter');
 const persistenceAdapter = require('ask-sdk-s3-persistence-adapter');
+const intervalParser = require('iso8601-duration');
+
 const config = require('/etc/aaconf/config.json');
 // const config = require('./kube/secrets/config.json');
 
@@ -48,13 +50,14 @@ const JobsIntentHandler = {
             && handlerInput.requestEnvelope.request.intent.name === 'Jobs';
     },
     async handle(handlerInput) {
-        console.info('asked for jobs information');
         const slots = handlerInput.requestEnvelope.request.intent.slots;
-        console.info("slots:", slots);
+        console.info('asked for jobs information. slots:', slots);
 
         let start_in_utc = new Date().getTime() - 7 * 24 * 86400 * 1000;
-        if (slots.interval) {
-            console.info('interval', slots.interval.value);
+        if (slots.interval.interval) {
+            console.info('interval: ', slots.interval.value);
+            const interval = intervalParser.toSeconds(intervalParser.parse(slots.interval.value));
+            start_in_utc = new Date().getTime() - interval * 1000;
         }
 
         const es_resp = await es.search({
@@ -100,9 +103,45 @@ const TasksIntentHandler = {
             && handlerInput.requestEnvelope.request.intent.name === 'Tasks';
     },
     handle(handlerInput) {
-        console.info('asked for tasks information');
-        const speechText = 'Getting your tasks data!';
+        const slots = handlerInput.requestEnvelope.request.intent.slots;
+        console.info('asked for tasks information. slots:', slots);
 
+        let start_in_utc = new Date().getTime() - 7 * 24 * 86400 * 1000;
+        if (slots.interval.interval) {
+            console.info('interval: ', slots.interval.value);
+            const interval = intervalParser.toSeconds(intervalParser.parse(slots.interval.value));
+            start_in_utc = new Date().getTime() - interval * 1000;
+        }
+
+        const es_resp = await es.search({
+            index: 'tasks',
+            body: {
+                size: 0,
+                query: {
+                    bool: {
+                        must: [
+                            { range: { modificationtime: { gte: start_in_utc } } }
+                        ],
+                    }
+                },
+                aggs: {
+                    all_statuses: {
+                        terms: {
+                            field: "status"
+                        }
+                    }
+                }
+            }
+        });
+        console.info('es response:', es_resp.body.aggregations.all_statuses)
+        const buckets = es_resp.body.aggregations.all_statuses.buckets;
+
+        let speechText = 'Your tasks are in following states: ';
+        for (i in buckets) {
+            speechText += 'in ' + buckets[i].key + ', ' + buckets[i].doc_count.toString() + ', ';
+        }
+
+        console.info(speechText);
         return handlerInput.responseBuilder
             .speak(speechText)
             .withSimpleCard('ATLAS computing', speechText)
