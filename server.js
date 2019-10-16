@@ -246,7 +246,7 @@ const SystemStatusIntentHandler = {
                     }
                 }
 
-                const es_res = await es.count(index = ind, body = types_query)
+                const es_res = await es.count({ index: ind, body: types_query })
                 console.info(es_res);
                 ps_indices[ind][1] = es_res['count']
 
@@ -260,7 +260,7 @@ const SystemStatusIntentHandler = {
                     }
                 }
 
-                const es_res1 = await es.count(index = ind, body = types_query)
+                const es_res1 = await es.count({ index: ind, body: types_query })
                 ps_indices[ind][2] = es_res1['hits']
             }
 
