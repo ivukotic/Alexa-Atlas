@@ -232,7 +232,7 @@ const SystemStatusIntentHandler = {
                 console.info("Checking: ", ind);
                 const tbin = ps_indices[ind][0];
 
-                const ref_start = sub_end - tbin * 3 * 3600 * 1000);
+                const ref_start = sub_end - tbin * 3 * 3600 * 1000;
                 const ref_end = sub_end - tbin * 3600 * 1000;
                 console.info('reference interval:', ref_start, ' till ', ref_end);
 
