@@ -120,11 +120,12 @@ const SystemStatusIntentHandler = {
         if (sistem === 'elastic') {
             try {
                 await es.cluster.health(function (err, resp, status) {
+                    console.info('es response:', resp.body)
                     const es_status = resp.body.status;
                     const es_unassigned = resp.body.unassigned_shard;
-                    const speechText = 'Elastic status is ' + es_status + '.';
+                    let speechText = 'Elastic status is ' + es_status + '.';
                     if (es_status !== 'green') {
-                        speechText += ' There are ' + es_unassigned + ' unassigned shards.';
+                        speechText += ' There are ' + str(es_unassigned) + ' unassigned shards.';
                     }
                     console.info(speechText);
                     return handlerInput.responseBuilder
