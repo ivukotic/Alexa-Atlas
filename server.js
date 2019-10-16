@@ -266,8 +266,21 @@ const SystemStatusIntentHandler = {
 
             console.info(ps_indices);
 
-            let speechText = 'perfsonar status lookup not yet implemented.';
+            var issueFound = false;
+            var speechText = 'Issues detected in perfsonar data indexing.';
+            for (ind in ps_indices) {
+                if (ps_indices[ind][1] < 10) continue;
+                if (ps_indices[ind][2] < 10 || ps_indices[ind][2] / ps_indices[ind][1] < 0.3) {
+                    issueFound = true;
+                    speechText += ' Index ' + ind + ' now has ' + ps_indices[ind][2].toString();
+                    speechText += ' documents, previously it had ' + (ps_indices[ind][1] / 2).toFixed(0) + '.';
+                }
+            }
+            if (issueFound === false) {
+                speechText = 'No issues with perfsonar data collection.';
+            }
             console.info(speechText);
+
             return handlerInput.responseBuilder
                 .speak(speechText)
                 .withSimpleCard('ATLAS computing', speechText)
@@ -279,7 +292,7 @@ const SystemStatusIntentHandler = {
             console.info(speechText);
             return handlerInput.responseBuilder
                 .speak(speechText)
-                .withSimpleCard('ATLAS computing', speechText)
+                .withSimpleCard('ATLAS computing - Perfsonar', speechText)
                 .getResponse();
         }
     }
