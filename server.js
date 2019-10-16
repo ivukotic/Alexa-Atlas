@@ -118,30 +118,45 @@ const SystemStatusIntentHandler = {
         console.info("slots:", handlerInput.requestEnvelope.request.intent.slots)
         const sistem = handlerInput.requestEnvelope.request.intent.slots.ADCsystem.value;
         if (sistem === 'elastic') {
-            try {
-                await es.cluster.health(function (err, resp, status) {
-                    console.info('es response:', resp.body)
-                    const es_status = resp.body.status;
-                    const es_unassigned = resp.body.unassigned_shard;
-                    let speechText = 'Elastic status is ' + es_status + '.';
-                    if (es_status !== 'green') {
-                        speechText += ' There are ' + str(es_unassigned) + ' unassigned shards.';
-                    }
-                    console.info(speechText);
-                    return handlerInput.responseBuilder
-                        .speak(speechText)
-                        .withSimpleCard('ATLAS computing', speechText)
-                        .getResponse();
-                });
-            } catch (err) {
-                console.error('ES Error: ', err);
-                speechText = 'could not get elastic search status.';
-                return handlerInput.responseBuilder
-                    .speak(speechText)
-                    .withSimpleCard('ATLAS computing', speechText)
-                    .getResponse();
+            const es_resp = await es.cluster.health()
+            console.info('es response:', es_resp.body)
+            const es_status = resp.body.status;
+            const es_unassigned = resp.body.unassigned_shard;
+            let speechText = 'Elastic status is ' + es_status + '.';
+            if (es_status !== 'green') {
+                speechText += ' There are ' + str(es_unassigned) + ' unassigned shards.';
             }
-        }
+            console.info(speechText);
+            return handlerInput.responseBuilder
+                .speak(speechText)
+                .withSimpleCard('ATLAS computing', speechText)
+                .getResponse();
+        };
+        //     try {
+        //         await es.cluster.health(function (err, resp, status) {
+        //             console.info('es response:', resp.body)
+        //             const es_status = resp.body.status;
+        //             const es_unassigned = resp.body.unassigned_shard;
+        //             let speechText = 'Elastic status is ' + es_status + '.';
+        //             if (es_status !== 'green') {
+        //                 speechText += ' There are ' + str(es_unassigned) + ' unassigned shards.';
+        //             }
+        //             console.info(speechText);
+        //             return handlerInput.responseBuilder
+        //                 .speak(speechText)
+        //                 .withSimpleCard('ATLAS computing', speechText)
+        //                 .getResponse();
+        //         });
+        //     } catch (err) {
+        //         console.error('ES Error: ', err);
+        //         speechText = 'could not get elastic search status.';
+        //         return handlerInput.responseBuilder
+        //             .speak(speechText)
+        //             .withSimpleCard('ATLAS computing', speechText)
+        //             .getResponse();
+        //     }
+        // }
+
         if (sistem === 'fts') {
             speechText = 'fts status lookup not yet implemented.';
             return handlerInput.responseBuilder
