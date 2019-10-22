@@ -234,7 +234,7 @@ const SystemStatusIntentHandler = {
 
                 const ref_start = sub_end - tbin * 3 * 3600 * 1000;
                 const ref_end = sub_end - tbin * 3600 * 1000;
-                console.info('reference interval:', ref_start, ' till ', ref_end);
+                // console.info('reference interval:', ref_start, ' till ', ref_end);
 
                 let types_query = {
                     query: {
@@ -247,7 +247,7 @@ const SystemStatusIntentHandler = {
                 }
 
                 const es_res = await es.count({ index: ind, body: types_query })
-                console.info(es_res.body);
+                // console.info(es_res.body.count);
                 ps_indices[ind][1] = es_res.body.count;
 
                 types_query = {
@@ -270,7 +270,7 @@ const SystemStatusIntentHandler = {
             var speechText = 'Issues detected in perfsonar data indexing.';
             for (ind in ps_indices) {
                 if (ps_indices[ind][1] < 10) continue;
-                if (ps_indices[ind][2] < 10 || ps_indices[ind][2] / ps_indices[ind][1] < 0.3) {
+                if (ps_indices[ind][2] < 10 || ps_indices[ind][2] / ps_indices[ind][1] < 0.25) {
                     issueFound = true;
                     speechText += ' Index ' + ind + ' now has ' + ps_indices[ind][2].toString();
                     speechText += ' documents, previously it had ' + (ps_indices[ind][1] / 2).toFixed(0) + '.';
