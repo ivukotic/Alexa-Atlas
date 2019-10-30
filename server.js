@@ -12,6 +12,11 @@ es = new elasticsearch.Client({ node: config.ES_HOST, log: 'error' });
 
 const app = express();
 
+function humanFileSize(size) {
+    var i = Math.floor(Math.log(size) / Math.log(1024));
+    return (size / Math.pow(1024, i)).toFixed(2) * 1 + ' ' + ['B', 'kB', 'MB', 'GB', 'TB'][i];
+};
+
 const LaunchRequestHandler = {
     canHandle(handlerInput) {
         return handlerInput.requestEnvelope.request.type === 'LaunchRequest';
@@ -28,14 +33,30 @@ const LaunchRequestHandler = {
     }
 };
 
-const ConfigureIntentHandler = {
+const SetUsernameIntentHandler = {
     canHandle(handlerInput) {
         return handlerInput.requestEnvelope.request.type === 'IntentRequest'
-            && handlerInput.requestEnvelope.request.intent.name === 'Configure';
+            && handlerInput.requestEnvelope.request.intent.name === 'SetUsername';
     },
     handle(handlerInput) {
-        console.info('asked for configuration.');
-        const speechText = 'Configuring!';
+        console.info('asked to set username.');
+        const speechText = 'Setting username!';
+
+        return handlerInput.responseBuilder
+            .speak(speechText)
+            .withSimpleCard('ATLAS computing', speechText)
+            .getResponse();
+    }
+};
+
+const SetSiteIntentHandler = {
+    canHandle(handlerInput) {
+        return handlerInput.requestEnvelope.request.type === 'IntentRequest'
+            && handlerInput.requestEnvelope.request.intent.name === 'SetSite';
+    },
+    handle(handlerInput) {
+        console.info('asked to set site.');
+        const speechText = 'Setting sitename!';
 
         return handlerInput.responseBuilder
             .speak(speechText)
@@ -156,7 +177,8 @@ const DataIntentHandler = {
     },
     handle(handlerInput) {
         console.info('asked for data information');
-        const speechText = 'Getting your data!';
+        const data_volume = humanFileSize(Math.random() * 1024 * 1024 * 1024 * 1024);
+        const speechText = 'Currently you have ' + data_volume + ' in your datasets.';
 
         return handlerInput.responseBuilder
             .speak(speechText)
@@ -172,7 +194,9 @@ const TransfersIntentHandler = {
     },
     handle(handlerInput) {
         console.info('asked for transfers information');
-        const speechText = 'Getting your transfers data!';
+        const data_volume = humanFileSize(Math.random() * 1024 * 1024 * 1024);
+        const speechText = data_volume + ' has been transfered.';
+        speechText = humanFileSize(Math.random() * 1024 * 1024 * 1024) + ' remains is waiting in queue.';
 
         return handlerInput.responseBuilder
             .speak(speechText)
@@ -305,7 +329,7 @@ const HelpIntentHandler = {
     },
     handle(handlerInput) {
         console.info('asked for help.');
-        const speechText = 'You can say: configure, get system status, my jobs in last week, tasks or transfers, or data.';
+        const speechText = 'You can say: get system status, set my site, set my username, my jobs in last week, tasks or transfers.';
 
         return handlerInput.responseBuilder
             .speak(speechText)
@@ -361,7 +385,8 @@ const ErrorHandler = {
 const skill = Alexa.SkillBuilders.custom()
     .addRequestHandlers(
         LaunchRequestHandler,
-        ConfigureIntentHandler,
+        SetUsernameIntentHandler,
+        SetSiteIntentHandler,
         JobsIntentHandler,
         TasksIntentHandler,
         TransfersIntentHandler,
