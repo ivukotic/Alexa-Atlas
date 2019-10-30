@@ -195,7 +195,7 @@ const TransfersIntentHandler = {
     handle(handlerInput) {
         console.info('asked for transfers information');
         const data_volume = humanFileSize(Math.random() * 1024 * 1024 * 1024);
-        const speechText = data_volume + ' has been transfered.';
+        var speechText = data_volume + ' has been transfered.';
         speechText = humanFileSize(Math.random() * 1024 * 1024 * 1024) + ' remains is waiting in queue.';
 
         return handlerInput.responseBuilder
