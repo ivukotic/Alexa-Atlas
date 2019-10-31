@@ -71,8 +71,6 @@ const SetSiteIntentHandler = {
     },
     handle(handlerInput) {
         console.info('asked to set site.');
-        const speechText = 'Setting sitename!';
-
         const sessionAttributes = handlerInput.attributesManager.getSessionAttributes();
         const sitename = getSlotValue(handlerInput.requestEnvelope, 'sitename')
         sessionAttributes.favoriteColor = sitename;
