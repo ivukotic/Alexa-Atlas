@@ -17,17 +17,31 @@ function humanFileSize(size) {
     return (size / Math.pow(1024, i)).toFixed(2) * 1 + ' ' + ['B', 'kB', 'MB', 'GB', 'TB'][i];
 };
 
+function getRandReprompt() {
+    const reprompts = [
+        'To learn all options say "Help".',
+        'Would you like to know status of an ADC system? Say "get system status".',
+        'To learn about your grid jobs, say "get my jobs" or "get my tasks".',
+        'To get state of an ATLAS site, say "get my site".',
+        'Maybe check your data size? Say "my data".',
+        'Maybe check state of your transfers? Say "my transfers".',
+        'To check your transfers say for example "my transfers in last week".',
+        'To check persfonar indexing say "get perfsonar status".',
+        'To check FTS status say "Check FTS system status".'
+    ]
+    return (reprompts[Math.floor(Math.random() * reprompts.length)])
+}
 const LaunchRequestHandler = {
     canHandle(handlerInput) {
         return handlerInput.requestEnvelope.request.type === 'LaunchRequest';
     },
     handle(handlerInput) {
         console.info('application launched.');
-        const speechText = 'Welcome to the ATLAS computing info system! To learn all options say "Help". ';
+        const speechText = 'Welcome to the ATLAS computing info system! ' + getRandReprompt();
 
         return handlerInput.responseBuilder
             .speak(speechText)
-            .reprompt(speechText)
+            .reprompt(getRandReprompt())
             .withSimpleCard('ATLAS computing', speechText)
             .getResponse();
     }
@@ -41,9 +55,10 @@ const SetUsernameIntentHandler = {
     handle(handlerInput) {
         console.info('asked to set username.');
         const speechText = 'Setting username!';
-
+        const repromptText = `To get your jobs, say "get my jobs."`;
         return handlerInput.responseBuilder
             .speak(speechText)
+            .reprompt(repromptText)
             .withSimpleCard('ATLAS computing', speechText)
             .getResponse();
     }
@@ -122,6 +137,7 @@ const JobsIntentHandler = {
         console.info(speechText);
         return handlerInput.responseBuilder
             .speak(speechText)
+            .reprompt(repromptText)
             .withSimpleCard('ATLAS computing', speechText)
             .getResponse();
     }
@@ -174,6 +190,7 @@ const TasksIntentHandler = {
         console.info(speechText);
         return handlerInput.responseBuilder
             .speak(speechText)
+            .reprompt(repromptText)
             .withSimpleCard('ATLAS computing', speechText)
             .getResponse();
     }
@@ -191,6 +208,7 @@ const DataIntentHandler = {
 
         return handlerInput.responseBuilder
             .speak(speechText)
+            .reprompt(repromptText)
             .withSimpleCard('ATLAS computing', speechText)
             .getResponse();
     }
@@ -209,6 +227,7 @@ const TransfersIntentHandler = {
 
         return handlerInput.responseBuilder
             .speak(speechText)
+            .reprompt(repromptText)
             .withSimpleCard('ATLAS computing', speechText)
             .getResponse();
     }
@@ -237,8 +256,8 @@ const SystemStatusIntentHandler = {
             console.info(speechText);
             return handlerInput.responseBuilder
                 .speak(speechText)
-                .reprompt('Try asking about other systems or maybe panda jobs?')
-                .withSimpleCard('ATLAS computing', speechText)
+                .reprompt(repromptText)
+                .withSimpleCard('ATLAS computing - Elastic', speechText)
                 .getResponse();
         };
 
@@ -247,8 +266,8 @@ const SystemStatusIntentHandler = {
             console.info(speechText);
             return handlerInput.responseBuilder
                 .speak(speechText)
-                .reprompt('Try asking about Elastic or Perfsonar.')
-                .withSimpleCard('ATLAS computing', speechText)
+                .reprompt(repromptText)
+                .withSimpleCard('ATLAS computing -FTS ', speechText)
                 .getResponse();
         };
 
@@ -319,7 +338,8 @@ const SystemStatusIntentHandler = {
 
             return handlerInput.responseBuilder
                 .speak(speechText)
-                .withSimpleCard('ATLAS computing', speechText)
+                .reprompt(repromptText)
+                .withSimpleCard('ATLAS computing - Perfsonar', speechText)
                 .getResponse();
         }
 
@@ -328,8 +348,8 @@ const SystemStatusIntentHandler = {
             console.info(speechText);
             return handlerInput.responseBuilder
                 .speak(speechText)
-                .reprompt('Try asking about Elastic or Perfsonar. Maybe check your jobs?')
-                .withSimpleCard('ATLAS computing - Perfsonar', speechText)
+                .reprompt(repromptText)
+                .withSimpleCard('ATLAS computing - Frontier', speechText)
                 .getResponse();
         }
     }
@@ -346,7 +366,7 @@ const HelpIntentHandler = {
 
         return handlerInput.responseBuilder
             .speak(speechText)
-            .reprompt(speechText)
+            .reprompt(getRandReprompt())
             .withSimpleCard('ATLAS computing', speechText)
             .getResponse();
     }
