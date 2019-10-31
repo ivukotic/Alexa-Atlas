@@ -137,7 +137,7 @@ const JobsIntentHandler = {
         console.info(speechText);
         return handlerInput.responseBuilder
             .speak(speechText)
-            .reprompt(repromptText)
+            .reprompt(getRandReprompt())
             .withSimpleCard('ATLAS computing', speechText)
             .getResponse();
     }
@@ -190,7 +190,7 @@ const TasksIntentHandler = {
         console.info(speechText);
         return handlerInput.responseBuilder
             .speak(speechText)
-            .reprompt(repromptText)
+            .reprompt(getRandReprompt())
             .withSimpleCard('ATLAS computing', speechText)
             .getResponse();
     }
@@ -227,7 +227,7 @@ const TransfersIntentHandler = {
 
         return handlerInput.responseBuilder
             .speak(speechText)
-            .reprompt(repromptText)
+            .reprompt(getRandReprompt())
             .withSimpleCard('ATLAS computing', speechText)
             .getResponse();
     }
@@ -256,7 +256,7 @@ const SystemStatusIntentHandler = {
             console.info(speechText);
             return handlerInput.responseBuilder
                 .speak(speechText)
-                .reprompt(repromptText)
+                .reprompt(getRandReprompt())
                 .withSimpleCard('ATLAS computing - Elastic', speechText)
                 .getResponse();
         };
@@ -266,7 +266,7 @@ const SystemStatusIntentHandler = {
             console.info(speechText);
             return handlerInput.responseBuilder
                 .speak(speechText)
-                .reprompt(repromptText)
+                .reprompt(getRandReprompt())
                 .withSimpleCard('ATLAS computing -FTS ', speechText)
                 .getResponse();
         };
@@ -338,7 +338,7 @@ const SystemStatusIntentHandler = {
 
             return handlerInput.responseBuilder
                 .speak(speechText)
-                .reprompt(repromptText)
+                .reprompt(getRandReprompt())
                 .withSimpleCard('ATLAS computing - Perfsonar', speechText)
                 .getResponse();
         }
@@ -348,7 +348,7 @@ const SystemStatusIntentHandler = {
             console.info(speechText);
             return handlerInput.responseBuilder
                 .speak(speechText)
-                .reprompt(repromptText)
+                .reprompt(getRandReprompt())
                 .withSimpleCard('ATLAS computing - Frontier', speechText)
                 .getResponse();
         }
