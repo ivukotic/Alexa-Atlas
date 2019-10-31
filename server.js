@@ -208,7 +208,7 @@ const DataIntentHandler = {
 
         return handlerInput.responseBuilder
             .speak(speechText)
-            .reprompt(repromptText)
+            .reprompt(getRandReprompt())
             .withSimpleCard('ATLAS computing', speechText)
             .getResponse();
     }
