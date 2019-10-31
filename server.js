@@ -58,9 +58,18 @@ const SetSiteIntentHandler = {
         console.info('asked to set site.');
         const speechText = 'Setting sitename!';
 
+        const sessionAttributes = handlerInput.attributesManager.getSessionAttributes();
+        const sitename = getSlotValue(handlerInput.requestEnvelope, 'sitename')
+        sessionAttributes.favoriteColor = sitename;
+        handlerInput.attributesManager.setSessionAttributes(sessionAttributes);
+
+        const speechText = `I saved the value ${sitename} in the session attributes. Ask me for your favorite color to demonstrate retrieving the attributes.`;
+        const repromptText = `To get jobs states at your site, say "get my site state."`;
+
         return handlerInput.responseBuilder
             .speak(speechText)
             .withSimpleCard('ATLAS computing', speechText)
+            .reprompt(repromptText)
             .getResponse();
     }
 };
@@ -215,6 +224,7 @@ const SystemStatusIntentHandler = {
         console.info('asked for system status.');
         console.info('slots:', handlerInput.requestEnvelope.request.intent.slots)
         const sistem = handlerInput.requestEnvelope.request.intent.slots.ADCsystem.value;
+
         if (sistem === 'elastic') {
             const es_resp = await es.cluster.health()
             console.info('es response:', es_resp.body)
@@ -227,6 +237,7 @@ const SystemStatusIntentHandler = {
             console.info(speechText);
             return handlerInput.responseBuilder
                 .speak(speechText)
+                .reprompt('Try asking about other systems or maybe panda jobs?')
                 .withSimpleCard('ATLAS computing', speechText)
                 .getResponse();
         };
@@ -236,6 +247,7 @@ const SystemStatusIntentHandler = {
             console.info(speechText);
             return handlerInput.responseBuilder
                 .speak(speechText)
+                .reprompt('Try asking about Elastic or Perfsonar.')
                 .withSimpleCard('ATLAS computing', speechText)
                 .getResponse();
         };
@@ -316,6 +328,7 @@ const SystemStatusIntentHandler = {
             console.info(speechText);
             return handlerInput.responseBuilder
                 .speak(speechText)
+                .reprompt('Try asking about Elastic or Perfsonar. Maybe check your jobs?')
                 .withSimpleCard('ATLAS computing - Perfsonar', speechText)
                 .getResponse();
         }
