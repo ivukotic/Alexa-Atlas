@@ -244,7 +244,7 @@ const SystemStatusIntentHandler = {
         console.info('slots:', handlerInput.requestEnvelope.request.intent.slots)
         const sistem = handlerInput.requestEnvelope.request.intent.slots.ADCsystem.value;
 
-        if (sistem === 'Elastic') {
+        if (sistem === 'elastic') {
             const es_resp = await es.cluster.health()
             console.info('es response:', es_resp.body)
             const es_status = es_resp.body.status;
@@ -261,7 +261,7 @@ const SystemStatusIntentHandler = {
                 .getResponse();
         };
 
-        if (sistem === 'FTS') {
+        if (sistem === 'fts') {
             let speechText = 'fts status lookup not yet implemented.';
             console.info(speechText);
             return handlerInput.responseBuilder
@@ -271,7 +271,7 @@ const SystemStatusIntentHandler = {
                 .getResponse();
         };
 
-        if (sistem === 'Perfsonar') {
+        if (sistem === 'perfsonar') {
             const ps_indices = {
                 'ps_meta': [24, 0, 0],
                 'ps_owd': [1, 0, 0],
@@ -343,7 +343,7 @@ const SystemStatusIntentHandler = {
                 .getResponse();
         }
 
-        if (sistem === 'Frontier') {
+        if (sistem === 'frontier') {
             let speechText = 'frontier status lookup not yet implemented.';
             console.info(speechText);
             return handlerInput.responseBuilder
