@@ -71,13 +71,13 @@ const SetSiteIntentHandler = {
     },
     handle(handlerInput) {
         console.info('asked to set site.');
-        const sessionAttributes = handlerInput.attributesManager.getSessionAttributes();
         console.info(handlerInput.requestEnvelope.request.intent.slots);
-        const sitename = getSlotValue(handlerInput.requestEnvelope, 'sitename');
+        const sitename = handlerInput.requestEnvelope.request.intent.slots.sitename.value;
+        const sessionAttributes = handlerInput.attributesManager.getSessionAttributes();
         sessionAttributes.favoriteColor = sitename;
         handlerInput.attributesManager.setSessionAttributes(sessionAttributes);
 
-        const speechText = `I saved the value ${sitename} in the session attributes. Ask me for your favorite color to demonstrate retrieving the attributes.`;
+        const speechText = `Your site has been set to ${sitename}.`;
         const repromptText = `To get jobs states at your site, say "get my site state."`;
 
         return handlerInput.responseBuilder
@@ -128,9 +128,9 @@ const JobsIntentHandler = {
         console.info('es response:', es_resp.body.aggregations.all_statuses)
         const buckets = es_resp.body.aggregations.all_statuses.buckets;
 
-        let speechText = 'Your jobs are in following states: ';
+        let speechText = 'Your jobs are in following states:\n';
         for (i in buckets) {
-            speechText += 'in ' + buckets[i].key + ', ' + buckets[i].doc_count.toString() + ',\n';
+            speechText += buckets[i].key + ', ' + buckets[i].doc_count.toString() + ',\n';
         }
 
         console.info(speechText);
@@ -181,9 +181,9 @@ const TasksIntentHandler = {
         console.info('es response:', es_resp.body.aggregations.all_statuses)
         const buckets = es_resp.body.aggregations.all_statuses.buckets;
 
-        let speechText = 'Your tasks are in following states: ';
+        let speechText = 'Your tasks are in following states:\n';
         for (i in buckets) {
-            speechText += 'in ' + buckets[i].key + ', ' + buckets[i].doc_count.toString() + ',\n';
+            speechText += buckets[i].key + ', ' + buckets[i].doc_count.toString() + ',\n';
         }
 
         console.info(speechText);
@@ -260,13 +260,13 @@ const SystemStatusIntentHandler = {
                 .getResponse();
         };
 
-        if (sistem === 'FTS') {
+        if (sistem === 'fts') {
             let speechText = 'fts status lookup not yet implemented.';
             console.info(speechText);
             return handlerInput.responseBuilder
                 .speak(speechText)
                 .reprompt(getRandReprompt())
-                .withSimpleCard('ATLAS computing -FTS ', speechText)
+                .withSimpleCard('ATLAS computing - FTS ', speechText)
                 .getResponse();
         };
 
