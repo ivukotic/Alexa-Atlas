@@ -72,7 +72,8 @@ const SetSiteIntentHandler = {
     handle(handlerInput) {
         console.info('asked to set site.');
         const sessionAttributes = handlerInput.attributesManager.getSessionAttributes();
-        const sitename = getSlotValue(handlerInput.requestEnvelope, 'sitename')
+        console.info(handlerInput.requestEnvelope.request.intent.slots);
+        const sitename = getSlotValue(handlerInput.requestEnvelope, 'sitename');
         sessionAttributes.favoriteColor = sitename;
         handlerInput.attributesManager.setSessionAttributes(sessionAttributes);
 
@@ -129,7 +130,7 @@ const JobsIntentHandler = {
 
         let speechText = 'Your jobs are in following states: ';
         for (i in buckets) {
-            speechText += 'in ' + buckets[i].key + ', ' + buckets[i].doc_count.toString() + ', ';
+            speechText += 'in ' + buckets[i].key + ', ' + buckets[i].doc_count.toString() + ',\n';
         }
 
         console.info(speechText);
@@ -182,7 +183,7 @@ const TasksIntentHandler = {
 
         let speechText = 'Your tasks are in following states: ';
         for (i in buckets) {
-            speechText += 'in ' + buckets[i].key + ', ' + buckets[i].doc_count.toString() + ', ';
+            speechText += 'in ' + buckets[i].key + ', ' + buckets[i].doc_count.toString() + ',\n';
         }
 
         console.info(speechText);
@@ -259,7 +260,7 @@ const SystemStatusIntentHandler = {
                 .getResponse();
         };
 
-        if (sistem === 'fts') {
+        if (sistem === 'FTS') {
             let speechText = 'fts status lookup not yet implemented.';
             console.info(speechText);
             return handlerInput.responseBuilder
