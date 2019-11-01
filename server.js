@@ -60,7 +60,7 @@ const SetUsernameIntentHandler = {
         const username = userSlot.value;
         const sessionAttributes = handlerInput.attributesManager.getSessionAttributes();
         sessionAttributes.my_username = username;
-        sessionAttributes.my_user_id = userSlot.resolutions.resolutionsPerAuthority[0].values[0].value.id;
+        sessionAttributes.my_user_id = userSlot.resolutions.resolutionsPerAuthority[0].values[0].value.id.replace('^', ' ');
         handlerInput.attributesManager.setSessionAttributes(sessionAttributes);
 
         const speechText = `Your username has been set to ${username}.`;
