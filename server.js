@@ -95,6 +95,31 @@ const SetSiteIntentHandler = {
     }
 };
 
+
+const GetSiteStatusIntentHandler = {
+    canHandle(handlerInput) {
+        return handlerInput.requestEnvelope.request.type === 'IntentRequest'
+            && handlerInput.requestEnvelope.request.intent.name === 'GetSiteStatus';
+    },
+    handle(handlerInput) {
+        console.info('asked for site status.');
+        const sessionAttributes = handlerInput.attributesManager.getSessionAttributes();
+        if (sessionAttributes.my_site) {
+            return handlerInput.responseBuilder
+                .speak(`Your site is ${sessionAttributes.my_site}`)
+                .reprompt(getRandReprompt())
+                .withSimpleCard('ATLAS computing', speechText)
+                .getResponse();
+        } else {
+            return handlerInput.responseBuilder
+                .speak('You need to set site first. Try saying "set my site".')
+                .reprompt('Please set your site.')
+                .addElicitSlotDirective('sitename')
+                .getResponse();
+        }
+    }
+};
+
 const JobsIntentHandler = {
     canHandle(handlerInput) {
         return handlerInput.requestEnvelope.request.type === 'IntentRequest'
@@ -426,6 +451,7 @@ const skill = Alexa.SkillBuilders.custom()
         LaunchRequestHandler,
         SetUsernameIntentHandler,
         SetSiteIntentHandler,
+        GetSiteStatusIntentHandler,
         JobsIntentHandler,
         TasksIntentHandler,
         TransfersIntentHandler,
