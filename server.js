@@ -105,11 +105,57 @@ const GetSiteStatusIntentHandler = {
         console.info('asked for site status.');
         const sessionAttributes = handlerInput.attributesManager.getSessionAttributes();
         if (sessionAttributes.my_site) {
-            const speechText = `Your site is ${sessionAttributes.my_site}`
+            var speechText = `Your site: ${sessionAttributes.my_site}, `
+
+            let start_in_utc = new Date().getTime() - 24 * 86400 * 1000;
+            if (slots.interval.interval) {
+                console.info('interval: ', slots.interval.value);
+                const interval = intervalParser.toSeconds(intervalParser.parse(slots.interval.value));
+                start_in_utc = new Date().getTime() - interval * 1000;
+                speechText+=' in last '+slots.interval.value + ' had jobs in:';
+            }
+            else{
+                speechText+='in last day, had jobs in: ';
+            }
+
+            const es_resp = await es.search({
+                index: 'jobs',
+                body: {
+                    size: 0,
+                    query: {
+                        bool: {
+                            must: [
+                                { wildcard: { computingsite: `*${sessionAttributes.my_site}*` } },
+                                { range: { modificationtime: { gte: start_in_utc } } }
+                            ],
+                        }
+                    },
+                    aggs: {
+                        all_statuses: {
+                            terms: {
+                                field: "jobstatus"
+                            }
+                        },
+                        all_queues: {
+                            terms: {
+                                field: "computingsite"
+                            }
+                        }
+                    }
+                }
+            });
+            console.info('es response:', es_resp.body.aggregations.all_statuses)
+            console.info('es response:', es_resp.body.aggregations.all_queues)
+            const sbuckets = es_resp.body.aggregations.all_statuses.buckets;
+
+            for (i in sbuckets) {
+                speechText += sbuckets[i].key + ', ' + sbuckets[i].doc_count.toString() + '\n';
+            }
+            
             return handlerInput.responseBuilder
                 .speak(speechText)
                 .reprompt(getRandReprompt())
-                .withSimpleCard('ATLAS computing', speechText)
+                .withSimpleCard('ATLAS computing - site status', speechText)
                 .getResponse();
         } else {
             return handlerInput.responseBuilder
