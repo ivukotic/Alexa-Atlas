@@ -102,7 +102,7 @@ const GetSiteStatusIntentHandler = {
         return handlerInput.requestEnvelope.request.type === 'IntentRequest'
             && handlerInput.requestEnvelope.request.intent.name === 'GetSiteStatus';
     },
-    handle(handlerInput) {
+    async handle(handlerInput) {
         console.info('asked for site status.');
         const sessionAttributes = handlerInput.attributesManager.getSessionAttributes();
         if (sessionAttributes.my_site) {
