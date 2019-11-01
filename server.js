@@ -54,7 +54,14 @@ const SetUsernameIntentHandler = {
     },
     handle(handlerInput) {
         console.info('asked to set username.');
-        const speechText = 'Setting username!';
+
+        console.info(handlerInput.requestEnvelope.request.intent.slots);
+        const username = handlerInput.requestEnvelope.request.intent.slots.username.value;
+        const sessionAttributes = handlerInput.attributesManager.getSessionAttributes();
+        sessionAttributes.my_username = username;
+        handlerInput.attributesManager.setSessionAttributes(sessionAttributes);
+
+        const speechText = `Your username has been set to ${username}.`;
         const repromptText = `To get your jobs, say "get my jobs."`;
         return handlerInput.responseBuilder
             .speak(speechText)
@@ -74,7 +81,7 @@ const SetSiteIntentHandler = {
         console.info(handlerInput.requestEnvelope.request.intent.slots);
         const sitename = handlerInput.requestEnvelope.request.intent.slots.sitename.value;
         const sessionAttributes = handlerInput.attributesManager.getSessionAttributes();
-        sessionAttributes.favoriteColor = sitename;
+        sessionAttributes.my_site = sitename;
         handlerInput.attributesManager.setSessionAttributes(sessionAttributes);
 
         const speechText = `Your site has been set to ${sitename}.`;
