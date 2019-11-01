@@ -105,8 +105,9 @@ const GetSiteStatusIntentHandler = {
         console.info('asked for site status.');
         const sessionAttributes = handlerInput.attributesManager.getSessionAttributes();
         if (sessionAttributes.my_site) {
+            const speechText = `Your site is ${sessionAttributes.my_site}`
             return handlerInput.responseBuilder
-                .speak(`Your site is ${sessionAttributes.my_site}`)
+                .speak(speechText)
                 .reprompt(getRandReprompt())
                 .withSimpleCard('ATLAS computing', speechText)
                 .getResponse();
