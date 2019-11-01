@@ -54,12 +54,13 @@ const SetUsernameIntentHandler = {
     },
     handle(handlerInput) {
         console.info('asked to set username.');
-
-        console.info(handlerInput.requestEnvelope.request.intent.slots.username);
-        const username = handlerInput.requestEnvelope.request.intent.slots.username.value;
+        const userSlot = handlerInput.requestEnvelope.request.intent.slots.username;
+        console.info(userSlot);
+        console.info(userSlot.resolutions.resolutionsPerAuthority);
+        const username = userSlot.value;
         const sessionAttributes = handlerInput.attributesManager.getSessionAttributes();
         sessionAttributes.my_username = username;
-        sessionAttributes.my_user_id = username;
+        sessionAttributes.my_user_id = userSlot.resolutions.resolutionsPerAuthority[0].values[0].value.id;
         handlerInput.attributesManager.setSessionAttributes(sessionAttributes);
 
         const speechText = `Your username has been set to ${username}.`;
@@ -107,6 +108,8 @@ const GetSiteStatusIntentHandler = {
         const sessionAttributes = handlerInput.attributesManager.getSessionAttributes();
         if (sessionAttributes.my_site) {
             var speechText = `Your site: ${sessionAttributes.my_site}, `
+
+            const slots = handlerInput.requestEnvelope.request.intent.slots;
 
             let start_in_utc = new Date().getTime() - 24 * 86400 * 1000;
             if (slots.interval.interval) {
