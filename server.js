@@ -151,10 +151,10 @@ const GetSiteStatusIntentHandler = {
                     }
                 }
             }
-            console.info(JSON.stringify(sbody, null, 4));
+            console.debug(JSON.stringify(sbody, null, 4));
             const es_resp = await es.search(sbody);
-            console.info('es response1:', es_resp.body.aggregations.all_statuses)
-            console.info('es response2:', es_resp.body.aggregations.all_queues)
+            console.debug('es response1:', es_resp.body.aggregations.all_statuses)
+            console.debug('es response2:', es_resp.body.aggregations.all_queues)
             const sbuckets = es_resp.body.aggregations.all_statuses.buckets;
 
             for (i in sbuckets) {
@@ -195,10 +195,10 @@ const JobsIntentHandler = {
             if (slots.interval.interval) {
                 const interval = intervalParser.toSeconds(intervalParser.parse(slots.interval.value));
                 start_in_utc = new Date().getTime() - interval * 1000;
-                speechText += ' in last ' + slots.interval.value + ' had jobs in:';
+                speechText += ' in last ' + slots.interval.value + ' had jobs in:\n';
             }
             else {
-                speechText += 'in last day, had jobs in: ';
+                speechText += 'in last day, had jobs in:\n';
             }
 
             const sbody = {
@@ -222,12 +222,11 @@ const JobsIntentHandler = {
                     }
                 }
             }
-            console.info(JSON.stringify(sbody, null, 4));
+            console.debug(JSON.stringify(sbody, null, 4));
             const es_resp = await es.search(sbody);
-            console.info('es response:', es_resp.body.aggregations.all_statuses)
+            console.debug('es response:', es_resp.body.aggregations.all_statuses)
             const buckets = es_resp.body.aggregations.all_statuses.buckets;
 
-            speechText += 'your jobs are in following states:\n';
             for (i in buckets) {
                 speechText += buckets[i].key + ' ' + buckets[i].doc_count.toString() + '\n';
             }
@@ -266,10 +265,10 @@ const TasksIntentHandler = {
             if (slots.interval.interval) {
                 const interval = intervalParser.toSeconds(intervalParser.parse(slots.interval.value));
                 start_in_utc = new Date().getTime() - interval * 1000;
-                speechText += ' in last ' + slots.interval.value + ' had tasks in:';
+                speechText += ' in last ' + slots.interval.value + ' had tasks in:\n';
             }
             else {
-                speechText += 'in last 7 days, had tasks in: ';
+                speechText += 'in last 7 days, had tasks in:\n';
             }
 
             const sbody = {
@@ -293,12 +292,11 @@ const TasksIntentHandler = {
                     }
                 }
             };
-            
+
             const es_resp = await es.search(sbody);
             console.info('es response:', es_resp.body.aggregations.all_statuses)
             const buckets = es_resp.body.aggregations.all_statuses.buckets;
 
-            speechText += 'had tasks are in following states:\n';
             for (i in buckets) {
                 speechText += buckets[i].key + ' ' + buckets[i].doc_count.toString() + ',\n';
             }
