@@ -158,7 +158,7 @@ const GetSiteStatusIntentHandler = {
             const sbuckets = es_resp.body.aggregations.all_statuses.buckets;
 
             for (i in sbuckets) {
-                speechText += sbuckets[i].key + ', ' + sbuckets[i].doc_count.toString() + '\n';
+                speechText += sbuckets[i].key + ' ' + sbuckets[i].doc_count.toString() + '\n';
             }
 
             return handlerInput.responseBuilder
@@ -193,10 +193,14 @@ const JobsIntentHandler = {
             let start_in_utc = new Date().getTime() - 7 * 24 * 86400 * 1000;
 
             if (slots.interval.interval) {
-                console.info('interval: ', slots.interval.value);
                 const interval = intervalParser.toSeconds(intervalParser.parse(slots.interval.value));
                 start_in_utc = new Date().getTime() - interval * 1000;
+                speechText += ' in last ' + slots.interval.value + ' had jobs in:';
             }
+            else {
+                speechText += 'in last day, had jobs in: ';
+            }
+
             const sbody = {
                 index: 'jobs',
                 body: {
@@ -204,7 +208,7 @@ const JobsIntentHandler = {
                     query: {
                         bool: {
                             must: [
-                                { match: { jobstatus: sessionAttributes.my_user_id } },
+                                { match: { produsername: sessionAttributes.my_user_id } },
                                 { range: { modificationtime: { gte: start_in_utc } } }
                             ],
                         }
@@ -225,7 +229,7 @@ const JobsIntentHandler = {
 
             speechText += 'your jobs are in following states:\n';
             for (i in buckets) {
-                speechText += buckets[i].key + ', ' + buckets[i].doc_count.toString() + '\n';
+                speechText += buckets[i].key + ' ' + buckets[i].doc_count.toString() + '\n';
             }
 
             console.info(speechText);
@@ -253,47 +257,65 @@ const TasksIntentHandler = {
         const slots = handlerInput.requestEnvelope.request.intent.slots;
         console.info('asked for tasks information. slots:', slots);
 
-        let start_in_utc = new Date().getTime() - 7 * 24 * 86400 * 1000;
-        if (slots.interval.interval) {
-            console.info('interval: ', slots.interval.value);
-            const interval = intervalParser.toSeconds(intervalParser.parse(slots.interval.value));
-            start_in_utc = new Date().getTime() - interval * 1000;
-        }
+        const sessionAttributes = handlerInput.attributesManager.getSessionAttributes();
 
-        const es_resp = await es.search({
-            index: 'tasks',
-            body: {
-                size: 0,
-                query: {
-                    bool: {
-                        must: [
-                            { range: { modificationtime: { gte: start_in_utc } } }
-                        ],
-                    }
-                },
-                aggs: {
-                    all_statuses: {
-                        terms: {
-                            field: "status"
+        if (sessionAttributes.my_username) {
+            var speechText = `Your username: ${sessionAttributes.my_username}, `
+
+            let start_in_utc = new Date().getTime() - 7 * 24 * 86400 * 1000;
+            if (slots.interval.interval) {
+                const interval = intervalParser.toSeconds(intervalParser.parse(slots.interval.value));
+                start_in_utc = new Date().getTime() - interval * 1000;
+                speechText += ' in last ' + slots.interval.value + ' had tasks in:';
+            }
+            else {
+                speechText += 'in last 7 days, had tasks in: ';
+            }
+
+            const sbody = {
+                index: 'tasks',
+                body: {
+                    size: 0,
+                    query: {
+                        bool: {
+                            must: [
+                                { match: { produsername: sessionAttributes.my_user_id } },
+                                { range: { modificationtime: { gte: start_in_utc } } }
+                            ],
+                        }
+                    },
+                    aggs: {
+                        all_statuses: {
+                            terms: {
+                                field: "status"
+                            }
                         }
                     }
                 }
+            };
+            
+            const es_resp = await es.search(sbody);
+            console.info('es response:', es_resp.body.aggregations.all_statuses)
+            const buckets = es_resp.body.aggregations.all_statuses.buckets;
+
+            speechText += 'had tasks are in following states:\n';
+            for (i in buckets) {
+                speechText += buckets[i].key + ' ' + buckets[i].doc_count.toString() + ',\n';
             }
-        });
-        console.info('es response:', es_resp.body.aggregations.all_statuses)
-        const buckets = es_resp.body.aggregations.all_statuses.buckets;
 
-        let speechText = 'Your tasks are in following states:\n';
-        for (i in buckets) {
-            speechText += buckets[i].key + ', ' + buckets[i].doc_count.toString() + ',\n';
+            console.info(speechText);
+            return handlerInput.responseBuilder
+                .speak(speechText)
+                .reprompt(getRandReprompt())
+                .withSimpleCard('ATLAS computing', speechText)
+                .getResponse();
+        } else {
+            return handlerInput.responseBuilder
+                .speak('You need to set your username first. Try saying "set my username".')
+                .reprompt('Please set your username.')
+                .addElicitSlotDirective('username')
+                .getResponse();
         }
-
-        console.info(speechText);
-        return handlerInput.responseBuilder
-            .speak(speechText)
-            .reprompt(getRandReprompt())
-            .withSimpleCard('ATLAS computing', speechText)
-            .getResponse();
     }
 };
 
