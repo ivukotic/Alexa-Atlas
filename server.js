@@ -121,8 +121,7 @@ const GetSiteStatusIntentHandler = {
             else {
                 speechText += 'in last day, had jobs in: ';
             }
-
-            const es_resp = await es.search({
+            const sbody = {
                 index: 'jobs',
                 body: {
                     size: 0,
@@ -147,9 +146,11 @@ const GetSiteStatusIntentHandler = {
                         }
                     }
                 }
-            });
-            console.info('es response:', es_resp.body.aggregations.all_statuses)
-            console.info('es response:', es_resp.body.aggregations.all_queues)
+            }
+            console.info(sbody);
+            const es_resp = await es.search(sbody);
+            console.info('es response1:', es_resp.body.aggregations.all_statuses)
+            console.info('es response2:', es_resp.body.aggregations.all_queues)
             const sbuckets = es_resp.body.aggregations.all_statuses.buckets;
 
             for (i in sbuckets) {
@@ -192,8 +193,7 @@ const JobsIntentHandler = {
                 const interval = intervalParser.toSeconds(intervalParser.parse(slots.interval.value));
                 start_in_utc = new Date().getTime() - interval * 1000;
             }
-
-            const es_resp = await es.search({
+            const sbody = {
                 index: 'jobs',
                 body: {
                     size: 0,
@@ -213,7 +213,9 @@ const JobsIntentHandler = {
                         }
                     }
                 }
-            });
+            }
+            console.info(sbody);
+            const es_resp = await es.search(sbody);
             console.info('es response:', es_resp.body.aggregations.all_statuses)
             const buckets = es_resp.body.aggregations.all_statuses.buckets;
 
