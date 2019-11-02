@@ -54,16 +54,16 @@ const SetUsernameIntentHandler = {
     },
     handle(handlerInput) {
         console.info('asked to set username.');
-        const userSlot = handlerInput.requestEnvelope.request.intent.slots.username;
-        console.info(userSlot);
-        console.info(userSlot.resolutions.resolutionsPerAuthority);
-        const username = userSlot.value;
+
+        const slots = handlerInput.requestEnvelope.request.intent.slots;
+        console.info(JSON.stringify(slots, null, 4));
+
         const sessionAttributes = handlerInput.attributesManager.getSessionAttributes();
-        sessionAttributes.my_username = username;
-        sessionAttributes.my_user_id = userSlot.resolutions.resolutionsPerAuthority[0].values[0].value.id.replace('^', ' ');
+        sessionAttributes.my_username = slots.username.value;
+        sessionAttributes.my_user_id = slots.username.resolutions.resolutionsPerAuthority[0].values[0].value.id.replace('^', ' ');
         handlerInput.attributesManager.setSessionAttributes(sessionAttributes);
 
-        const speechText = `Your username has been set to ${username}.`;
+        const speechText = `Your username has been set to ${slots.username.value}.`;
         const repromptText = `To get your jobs, say "get my jobs."`;
         return handlerInput.responseBuilder
             .speak(speechText)
@@ -80,13 +80,16 @@ const SetSiteIntentHandler = {
     },
     handle(handlerInput) {
         console.info('asked to set site.');
-        console.info(handlerInput.requestEnvelope.request.intent.slots);
-        const sitename = handlerInput.requestEnvelope.request.intent.slots.sitename.value;
+
+        const slots = handlerInput.requestEnvelope.request.intent.slots;
+        console.info(JSON.stringify(slots, null, 4));
+
         const sessionAttributes = handlerInput.attributesManager.getSessionAttributes();
-        sessionAttributes.my_site = sitename;
+        sessionAttributes.my_site = slots.sitename.value;
+        sessionAttributes.my_site_id = slots.sitename.resolutions.resolutionsPerAuthority[0].values[0].value.id;
         handlerInput.attributesManager.setSessionAttributes(sessionAttributes);
 
-        const speechText = `Your site has been set to ${sitename}.`;
+        const speechText = `Your site has been set to ${slots.sitename.value}.`;
         const repromptText = `To get jobs states at your site, say "get my site state."`;
 
         return handlerInput.responseBuilder
@@ -110,6 +113,7 @@ const GetSiteStatusIntentHandler = {
             var speechText = `Your site: ${sessionAttributes.my_site}, `
 
             const slots = handlerInput.requestEnvelope.request.intent.slots;
+            console.info(JSON.stringify(slots, null, 4));
 
             let start_in_utc = new Date().getTime() - 24 * 86400 * 1000;
             if (slots.interval.interval) {
@@ -128,7 +132,7 @@ const GetSiteStatusIntentHandler = {
                     query: {
                         bool: {
                             must: [
-                                { wildcard: { computingsite: `*${sessionAttributes.my_site}*` } },
+                                { wildcard: { computingsite: `*${sessionAttributes.my_site_id}*` } },
                                 { range: { modificationtime: { gte: start_in_utc } } }
                             ],
                         }
@@ -147,7 +151,7 @@ const GetSiteStatusIntentHandler = {
                     }
                 }
             }
-            console.info(sbody);
+            console.info(JSON.stringify(sbody, null, 4));
             const es_resp = await es.search(sbody);
             console.info('es response1:', es_resp.body.aggregations.all_statuses)
             console.info('es response2:', es_resp.body.aggregations.all_queues)
@@ -214,7 +218,7 @@ const JobsIntentHandler = {
                     }
                 }
             }
-            console.info(sbody);
+            console.info(JSON.stringify(sbody, null, 4));
             const es_resp = await es.search(sbody);
             console.info('es response:', es_resp.body.aggregations.all_statuses)
             const buckets = es_resp.body.aggregations.all_statuses.buckets;
