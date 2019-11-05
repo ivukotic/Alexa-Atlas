@@ -69,7 +69,8 @@ const SetUsernameIntentHandler = {
             .speak(speechText)
             .reprompt(repromptText)
             .withSimpleCard('ATLAS computing', speechText)
-            .getResponse();
+            .shouldEndSession(null);
+        // .getResponse();
     }
 };
 
@@ -96,7 +97,8 @@ const SetSiteIntentHandler = {
             .speak(speechText)
             .withSimpleCard('ATLAS computing', speechText)
             .reprompt(repromptText)
-            .getResponse();
+            .shouldEndSession(null);
+        // .getResponse();
     }
 };
 
