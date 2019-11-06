@@ -91,14 +91,13 @@ const SetSiteIntentHandler = {
         handlerInput.attributesManager.setSessionAttributes(sessionAttributes);
 
         const speechText = `Your site has been set to ${slots.sitename.value}.`;
-        const repromptText = `To get jobs states at your site, say "get my site state."`;
+        // const repromptText = `To get jobs states at your site, say "get my site state."`;
 
         return handlerInput.responseBuilder
             .speak(speechText)
             .withSimpleCard('ATLAS computing', speechText)
-            .reprompt(repromptText)
-            .shouldEndSession(null);
-        // .getResponse();
+            // .reprompt(repromptText)
+            .getResponse();
     }
 };
 
