@@ -19,15 +19,16 @@ function humanFileSize(size) {
 
 function getRandReprompt() {
     const reprompts = [
-        'To learn all options say "Help".',
-        'Would you like to know status of an ADC system? Say "get system status".',
-        'To learn about your grid jobs, say "get my jobs" or "get my tasks".',
-        'To get state of an ATLAS site, say "get my site".',
-        'Maybe check your data size? Say "my data".',
-        'Maybe check state of your transfers? Say "my transfers".',
-        'To check your transfers say for example "my transfers in last week".',
-        'To check persfonar indexing say "get perfsonar status".',
-        'To check FTS status say "Check FTS system status".'
+        '\nTo learn all options say "Help".',
+        '\nWould you like to know status of an ADC system? Say "get system status".',
+        '\nTo learn about your grid jobs, say "get my jobs" or "get my tasks".',
+        '\nTo get state of an ATLAS site, say "get my site".',
+        '\nMaybe check your data size? Say "my data".',
+        '\nMaybe check state of your transfers? Say "my transfers".',
+        '\nTo check your transfers say for example "my transfers in last week".',
+        '\nTo check persfonar indexing say "get perfsonar status".',
+        '\nTo check FTS status say "Check FTS system status".',
+        '\nTo exit ATLAS computing skill say "Stop".'
     ]
     return (reprompts[Math.floor(Math.random() * reprompts.length)])
 }
@@ -66,11 +67,10 @@ const SetUsernameIntentHandler = {
         const speechText = `Your username has been set to ${slots.username.value}.`;
         const repromptText = `To get your jobs, say "get my jobs."`;
         return handlerInput.responseBuilder
-            .speak(speechText)
+            .speak(speechText + getRandReprompt())
             .reprompt(repromptText)
             .withSimpleCard('ATLAS computing', speechText)
-            .shouldEndSession(null);
-        // .getResponse();
+            .getResponse();
     }
 };
 
@@ -91,12 +91,12 @@ const SetSiteIntentHandler = {
         handlerInput.attributesManager.setSessionAttributes(sessionAttributes);
 
         const speechText = `Your site has been set to ${slots.sitename.value}.`;
-        // const repromptText = `To get jobs states at your site, say "get my site state."`;
+        const repromptText = `To get jobs states at your site, say "get my site state."`;
 
         return handlerInput.responseBuilder
-            .speak(speechText)
+            .speak(speechText + getRandReprompt())
             .withSimpleCard('ATLAS computing', speechText)
-            // .reprompt(repromptText)
+            .reprompt(repromptText)
             .getResponse();
     }
 };
@@ -111,7 +111,7 @@ const GetSiteStatusIntentHandler = {
         console.info('asked for site status.');
         const sessionAttributes = handlerInput.attributesManager.getSessionAttributes();
         if (sessionAttributes.my_site) {
-            var speechText = `Your site: ${sessionAttributes.my_site}, `
+            var speechText = `During last `;
 
             const slots = handlerInput.requestEnvelope.request.intent.slots;
             console.info(JSON.stringify(slots, null, 4));
@@ -121,11 +121,12 @@ const GetSiteStatusIntentHandler = {
                 console.info('interval: ', slots.interval.value);
                 const interval = intervalParser.toSeconds(intervalParser.parse(slots.interval.value));
                 start_in_utc = new Date().getTime() - interval * 1000;
-                speechText += ' in last ' + slots.interval.value + ' had jobs in:';
+                speechText += slots.interval.value;
             }
             else {
-                speechText += 'in last day, had jobs in: ';
+                speechText += 'day';
             }
+
             const sbody = {
                 index: 'jobs',
                 body: {
@@ -158,12 +159,25 @@ const GetSiteStatusIntentHandler = {
             console.debug('es response2:', es_resp.body.aggregations.all_queues)
             const sbuckets = es_resp.body.aggregations.all_statuses.buckets;
 
+
+            var totjobs = 0;
+            var details = 'Jobs are in following states:\n';
+            for (i in sbuckets) {
+                speechText += sbuckets[i].key + ' ' + sbuckets[i].doc_count.toString() + ',\n';
+                totjobs += sbuckets[i].doc_count;
+            }
+            speechText += `,\nsite: ${sessionAttributes.my_site},\n had: ${totjobs} jobs\n.`
+            if (totjobs > 0) {
+                speechText += details;
+            }
+
+
             for (i in sbuckets) {
                 speechText += sbuckets[i].key + ' ' + sbuckets[i].doc_count.toString() + '\n';
             }
 
             return handlerInput.responseBuilder
-                .speak(speechText)
+                .speak(speechText + getRandReprompt())
                 .reprompt(getRandReprompt())
                 .withSimpleCard('ATLAS computing - site status', speechText)
                 .getResponse();
@@ -189,17 +203,17 @@ const JobsIntentHandler = {
         const sessionAttributes = handlerInput.attributesManager.getSessionAttributes();
 
         if (sessionAttributes.my_username) {
-            var speechText = `Your username: ${sessionAttributes.my_username}, `
+            var speechText = `During last `;
 
             let start_in_utc = new Date().getTime() - 7 * 24 * 86400 * 1000;
 
             if (slots.interval.interval) {
                 const interval = intervalParser.toSeconds(intervalParser.parse(slots.interval.value));
                 start_in_utc = new Date().getTime() - interval * 1000;
-                speechText += ' in last ' + slots.interval.value + ' had jobs in:\n';
+                speechText += slots.interval.value;
             }
             else {
-                speechText += 'in last day, had jobs in:\n';
+                speechText += 'day';
             }
 
             const sbody = {
@@ -228,13 +242,20 @@ const JobsIntentHandler = {
             console.debug('es response:', es_resp.body.aggregations.all_statuses)
             const buckets = es_resp.body.aggregations.all_statuses.buckets;
 
+            var totjobs = 0;
+            var details = 'Jobs are in following states:\n';
             for (i in buckets) {
-                speechText += buckets[i].key + ' ' + buckets[i].doc_count.toString() + '\n';
+                speechText += buckets[i].key + ' ' + buckets[i].doc_count.toString() + ',\n';
+                totjobs += buckets[i].doc_count;
+            }
+            speechText += `,\nuser: ${sessionAttributes.my_username},\n had: ${totjobs} jobs\n.`
+            if (totjobs > 0) {
+                speechText += details;
             }
 
             console.info(speechText);
             return handlerInput.responseBuilder
-                .speak(speechText)
+                .speak(speechText + getRandReprompt())
                 .reprompt(getRandReprompt())
                 .withSimpleCard('ATLAS computing', speechText)
                 .getResponse();
@@ -260,16 +281,16 @@ const TasksIntentHandler = {
         const sessionAttributes = handlerInput.attributesManager.getSessionAttributes();
 
         if (sessionAttributes.my_username) {
-            var speechText = `Your username: ${sessionAttributes.my_username}, `
+            var speechText = `During last `;
 
             let start_in_utc = new Date().getTime() - 7 * 24 * 86400 * 1000;
             if (slots.interval.interval) {
                 const interval = intervalParser.toSeconds(intervalParser.parse(slots.interval.value));
                 start_in_utc = new Date().getTime() - interval * 1000;
-                speechText += ' in last ' + slots.interval.value + ' had tasks in:\n';
+                speechText += slots.interval.value;
             }
             else {
-                speechText += 'in last 7 days, had tasks in:\n';
+                speechText += '7 days';
             }
 
             const sbody = {
@@ -297,14 +318,20 @@ const TasksIntentHandler = {
             const es_resp = await es.search(sbody);
             console.info('es response:', es_resp.body.aggregations.all_statuses)
             const buckets = es_resp.body.aggregations.all_statuses.buckets;
-
+            var tottasks = 0;
+            var details = 'Tasks are in following states:\n';
             for (i in buckets) {
                 speechText += buckets[i].key + ' ' + buckets[i].doc_count.toString() + ',\n';
+                tottasks += buckets[i].doc_count;
+            }
+            speechText += `,\nuser: ${sessionAttributes.my_username},\n had: ${tottasks} tasks\n.`
+            if (tottasks > 0) {
+                speechText += details;
             }
 
             console.info(speechText);
             return handlerInput.responseBuilder
-                .speak(speechText)
+                .speak(speechText + getRandReprompt())
                 .reprompt(getRandReprompt())
                 .withSimpleCard('ATLAS computing', speechText)
                 .getResponse();
@@ -329,7 +356,7 @@ const DataIntentHandler = {
         const speechText = 'Currently you have ' + data_volume + ' in your datasets.';
 
         return handlerInput.responseBuilder
-            .speak(speechText)
+            .speak(speechText + getRandReprompt())
             .reprompt(getRandReprompt())
             .withSimpleCard('ATLAS computing', speechText)
             .getResponse();
@@ -348,7 +375,7 @@ const TransfersIntentHandler = {
         speechText = humanFileSize(Math.random() * 1024 * 1024 * 1024) + ' remains is waiting in queue.';
 
         return handlerInput.responseBuilder
-            .speak(speechText)
+            .speak(speechText + getRandReprompt())
             .reprompt(getRandReprompt())
             .withSimpleCard('ATLAS computing', speechText)
             .getResponse();
@@ -377,7 +404,7 @@ const SystemStatusIntentHandler = {
             }
             console.info(speechText);
             return handlerInput.responseBuilder
-                .speak(speechText)
+                .speak(speechText + getRandReprompt())
                 .reprompt(getRandReprompt())
                 .withSimpleCard('ATLAS computing - Elastic', speechText)
                 .getResponse();
@@ -387,7 +414,7 @@ const SystemStatusIntentHandler = {
             let speechText = 'fts status lookup not yet implemented.';
             console.info(speechText);
             return handlerInput.responseBuilder
-                .speak(speechText)
+                .speak(speechText + getRandReprompt())
                 .reprompt(getRandReprompt())
                 .withSimpleCard('ATLAS computing - FTS ', speechText)
                 .getResponse();
@@ -459,7 +486,7 @@ const SystemStatusIntentHandler = {
             console.info(speechText);
 
             return handlerInput.responseBuilder
-                .speak(speechText)
+                .speak(speechText + getRandReprompt())
                 .reprompt(getRandReprompt())
                 .withSimpleCard('ATLAS computing - Perfsonar', speechText)
                 .getResponse();
@@ -469,7 +496,7 @@ const SystemStatusIntentHandler = {
             let speechText = 'frontier status lookup not yet implemented.';
             console.info(speechText);
             return handlerInput.responseBuilder
-                .speak(speechText)
+                .speak(speechText + getRandReprompt())
                 .reprompt(getRandReprompt())
                 .withSimpleCard('ATLAS computing - Frontier', speechText)
                 .getResponse();
