@@ -163,7 +163,7 @@ const GetSiteStatusIntentHandler = {
             var totjobs = 0;
             var details = 'Jobs are in following states:\n';
             for (i in sbuckets) {
-                speechText += sbuckets[i].key + ' ' + sbuckets[i].doc_count.toString() + ',\n';
+                details += sbuckets[i].key + ' ' + sbuckets[i].doc_count.toString() + ',\n';
                 totjobs += sbuckets[i].doc_count;
             }
             speechText += `,\nsite: ${sessionAttributes.my_site},\n had: ${totjobs} jobs\n.`
@@ -245,7 +245,7 @@ const JobsIntentHandler = {
             var totjobs = 0;
             var details = 'Jobs are in following states:\n';
             for (i in buckets) {
-                speechText += buckets[i].key + ' ' + buckets[i].doc_count.toString() + ',\n';
+                details += buckets[i].key + ' ' + buckets[i].doc_count.toString() + ',\n';
                 totjobs += buckets[i].doc_count;
             }
             speechText += `,\nuser: ${sessionAttributes.my_username},\n had: ${totjobs} jobs\n.`
@@ -321,7 +321,7 @@ const TasksIntentHandler = {
             var tottasks = 0;
             var details = 'Tasks are in following states:\n';
             for (i in buckets) {
-                speechText += buckets[i].key + ' ' + buckets[i].doc_count.toString() + ',\n';
+                details += buckets[i].key + ' ' + buckets[i].doc_count.toString() + ',\n';
                 tottasks += buckets[i].doc_count;
             }
             speechText += `,\nuser: ${sessionAttributes.my_username},\n had: ${tottasks} tasks\n.`
