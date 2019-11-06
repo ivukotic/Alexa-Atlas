@@ -4,6 +4,10 @@ const express = require('express');
 const { ExpressAdapter } = require('ask-sdk-express-adapter');
 const persistenceAdapter = require('ask-sdk-s3-persistence-adapter');
 const intervalParser = require('iso8601-duration');
+const D3Node = require('d3-node')
+
+const canvasModule = require('canvas');
+const d3n = new D3Node({ canvasModule });
 
 const config = require('/etc/aaconf/config.json');
 // const config = require('./kube/secrets/config.json');
@@ -31,6 +35,12 @@ function getRandReprompt() {
         '\nTo exit ATLAS computing skill say "Stop".'
     ]
     return (reprompts[Math.floor(Math.random() * reprompts.length)])
+}
+
+function createHistogram(data) {
+    const canvas = d3n.createCanvas(960, 500);
+    const context = canvas.getContext('2d');
+    canvas.pngStream().pipe(fs.createWriteStream('output.png'));
 }
 const LaunchRequestHandler = {
     canHandle(handlerInput) {
