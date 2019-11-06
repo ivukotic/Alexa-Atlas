@@ -176,7 +176,7 @@ const GetSiteStatusIntentHandler = {
                 details += sbuckets[i].key + ' ' + sbuckets[i].doc_count.toString() + ',\n';
                 totjobs += sbuckets[i].doc_count;
             }
-            speechText += `,\nsite ${sessionAttributes.my_site},\n had ${totjobs} jobs.\n`
+            speechText += `,\nsite ${sessionAttributes.my_site},\nhad ${totjobs} jobs.\n`
             if (totjobs > 0) {
                 speechText += details;
             }
@@ -258,7 +258,7 @@ const JobsIntentHandler = {
                 details += buckets[i].key + ' ' + buckets[i].doc_count.toString() + ',\n';
                 totjobs += buckets[i].doc_count;
             }
-            speechText += `,\nuser ${sessionAttributes.my_username},\n had ${totjobs} jobs.\n`
+            speechText += `,\nuser ${sessionAttributes.my_username},\nhad ${totjobs} jobs.\n`
             if (totjobs > 0) {
                 speechText += details;
             }
@@ -334,7 +334,7 @@ const TasksIntentHandler = {
                 details += buckets[i].key + ' ' + buckets[i].doc_count.toString() + ',\n';
                 tottasks += buckets[i].doc_count;
             }
-            speechText += `,\nuser ${sessionAttributes.my_username},\n had ${tottasks} tasks.\n`
+            speechText += `,\nuser ${sessionAttributes.my_username},\nhad ${tottasks} tasks.\n`
             if (tottasks > 0) {
                 speechText += details;
             }
