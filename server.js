@@ -181,11 +181,6 @@ const GetSiteStatusIntentHandler = {
                 speechText += details;
             }
 
-
-            for (i in sbuckets) {
-                speechText += sbuckets[i].key + ' ' + sbuckets[i].doc_count.toString() + '\n';
-            }
-
             return handlerInput.responseBuilder
                 .speak(speechText + getRandReprompt())
                 .reprompt(getRandReprompt())
