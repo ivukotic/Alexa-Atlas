@@ -1,6 +1,6 @@
 {
   "name": "alexa-atlas",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Alexa skill for ATLAS physicists computing needs",
   "main": "server.js",
   "scripts": {
@@ -24,19 +24,19 @@
   },
   "homepage": "https://github.com/ivukotic/Alexa-Atlas#readme",
   "dependencies": {
-    "https-proxy-agent": "^5.0.0",
-    "@elastic/elasticsearch": "^7.9.1",
-    "ask-sdk": "^2.9.0",
-    "ask-sdk-express-adapter": "^2.1.0",
-    "ask-sdk-s3-persistence-adapter": "^2.9.0",
+    "@elastic/elasticsearch": "^7.14.0",
+    "ask-sdk": "^2.11.0",
+    "ask-sdk-express-adapter": "^2.11.0",
+    "ask-sdk-s3-persistence-adapter": "^2.11.0",
     "body-parser": "^1.19.0",
-    "canvas": "^2.6.1",
-    "d3-node": "^2.2.2",
+    "canvas": "^2.8.0",
+    "d3-node": "^2.2.3",
     "express": "^4.17.1",
-    "express-session": "^1.17.1",
+    "express-session": "^1.17.2",
     "fs": "0.0.1-security",
     "https": "^1.0.0",
-    "iso8601-duration": "^1.2.0",
-    "npm": "^6.14.8"
+    "https-proxy-agent": "^5.0.0",
+    "iso8601-duration": "^1.3.0",
+    "npm": "^7.21.0"
   }
 }
