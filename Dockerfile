@@ -1,4 +1,4 @@
-FROM node:current
+FROM node:latest
 
 LABEL maintainer Ilija Vukotic <ivukotic@cern.ch>
 
