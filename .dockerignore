@@ -1,4 +1,5 @@
 kube
+secrets
 README.md
 .gitignore
 node_modules
