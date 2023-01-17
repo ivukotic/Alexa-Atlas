@@ -26,7 +26,7 @@
   "dependencies": {
     "@elastic/elasticsearch": "^7.15.0",
     "ask-sdk": "^2.11.0",
-    "ask-sdk-express-adapter": "^2.11.0",
+    "ask-sdk-express-adapter": "^2.12.1",
     "ask-sdk-s3-persistence-adapter": "^2.11.0",
     "body-parser": "^1.19.0",
     "express": "^4.17.3",
